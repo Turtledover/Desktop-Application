@@ -54,53 +54,52 @@ public class LoginPage extends JFrame {
             public void actionPerformed(ActionEvent ae) {
                 String name = username.getText();
                 String pwd = password.getText();
+                if(name.equals("test") && pwd.equals("12345")) {
+                    Navigation regFace =new Navigation();
+                    regFace.setVisible(true);
+                    dispose();
+                } else {
 
-                OkHttpClient client = new OkHttpClient();
-                String url = "http://localhost:8000/login/";
-//                OkHttp3CookieHelper cookieHelper = new OkHttp3CookieHelper();
-//                cookieHelper.setCookie(url, "csrfmiddlewaretoken",
-//                        "jSgfpuhKKZcK8K2NKd1J5etriDxQqRFoQGsTTNeB0O6fSPwyQFXb3DV10FPGxovB");
-//
-//                OkHttpClient client = new OkHttpClient.Builder()
-//                        .cookieJar(cookieHelper.cookieJar())
-//                        .build();
-
-                RequestBody formBody = new FormBody.Builder()
-                        .add("username", name) // luyao
-                        .add("password", pwd) // liluyao123
-                        .build();
-                Request request = new Request.Builder()
-                        .url(url)
-                        .post(formBody)
-                        .build();
-
-                try {
-                    Response response = client.newCall(request).execute();
-                    if(response.code() == 200){
-                        MachinePage regFace =new MachinePage();
-                        regFace.setVisible(true);
-                        dispose();
-                    }else{
-                        JOptionPane.showMessageDialog(null,"Wrong Password / Username");
-                        username.setText("");
-                        password.setText("");
-                        username.requestFocus();
-                    }
-                    // Do something with the response.
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null,"Wrong Password / Username");
+                    username.setText("");
+                    password.setText("");
+                    username.requestFocus();
                 }
 
-//                if(puname.equals("test") && ppaswd.equals("12345")) {
-//                    MachinePage regFace =new MachinePage();
-//                    regFace.setVisible(true);
-//                    dispose();
-//                } else {
+//                OkHttpClient client = new OkHttpClient();
+//                String url = "http://localhost:8000/login/";
+////                OkHttp3CookieHelper cookieHelper = new OkHttp3CookieHelper();
+////                cookieHelper.setCookie(url, "csrfmiddlewaretoken",
+////                        "jSgfpuhKKZcK8K2NKd1J5etriDxQqRFoQGsTTNeB0O6fSPwyQFXb3DV10FPGxovB");
+////
+////                OkHttpClient client = new OkHttpClient.Builder()
+////                        .cookieJar(cookieHelper.cookieJar())
+////                        .build();
 //
-//                    JOptionPane.showMessageDialog(null,"Wrong Password / Username");
-//                    username.setText("");
-//                    password.setText("");
-//                    username.requestFocus();
+//                RequestBody formBody = new FormBody.Builder()
+//                        .add("username", name) // luyao
+//                        .add("password", pwd) // liluyao123
+//                        .build();
+//                Request request = new Request.Builder()
+//                        .url(url)
+//                        .post(formBody)
+//                        .build();
+//
+//                try {
+//                    Response response = client.newCall(request).execute();
+//                    if(response.code() == 200){
+//                        Navigation regFace =new Navigation();
+//                        regFace.setVisible(true);
+//                        dispose();
+//                    }else{
+//                        JOptionPane.showMessageDialog(null,"Wrong Password / Username");
+//                        username.setText("");
+//                        password.setText("");
+//                        username.requestFocus();
+//                    }
+//                    // Do something with the response.
+//                } catch (IOException e) {
+//                    e.printStackTrace();
 //                }
 
             }
