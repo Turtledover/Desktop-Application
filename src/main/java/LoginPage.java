@@ -1,4 +1,5 @@
 import okhttp3.*;
+import org.apache.http.client.ClientProtocolException;
 import org.riversun.okhttp3.OkHttp3CookieHelper;
 
 import javax.swing.*;
@@ -54,36 +55,55 @@ public class LoginPage extends JFrame {
             public void actionPerformed(ActionEvent ae) {
                 String name = username.getText();
                 String pwd = password.getText();
-                if(name.equals("test") && pwd.equals("12345")) {
-                    Navigation regFace =new Navigation();
-                    regFace.setVisible(true);
-                    dispose();
-                } else {
+                Connect.HttpGetAndParam logoutRequest =
+                        new Connect.HttpGetAndParam("http://localhost:8000/login/");
 
-                    JOptionPane.showMessageDialog(null,"Wrong Password / Username");
-                    username.setText("");
-                    password.setText("");
-                    username.requestFocus();
+                Connect.HttpGetAndParam formRequest =
+                        new Connect.HttpGetAndParam("http://localhost:8000/login/");
+                Connect.HttpPostAndParam postRequest =
+                        new Connect.HttpPostAndParam("http://localhost:8000/login/");
+                try {
+//                    String response = logoutRequest.execute();
+                    String response2 = formRequest.execute();
+//                    System.out.println(response);
+
+                    // post to board
+                    postRequest.addParameter("username", name);
+                    postRequest.addParameter("password", pwd);
+                    postRequest.addParameter("csrfmiddlewaretoken",
+                            Connect.getCookieByName("csrftoken")); // with csrf token
+                    postRequest.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
+                    String postResponse = postRequest.execute();
+                    if (postResponse.indexOf("Log") <= 0) {
+                        Navigation regFace =new Navigation();
+                        regFace.setVisible(true);
+                        dispose();
+                    } else {
+                      JOptionPane.showMessageDialog(null,"Wrong Password / Username");
+                        username.setText("");
+                        password.setText("");
+                        username.requestFocus();
+                    }
+                } catch (ClientProtocolException e) {
+                    System.out.println("Bad Protocol");
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-//                OkHttpClient client = new OkHttpClient();
-//                String url = "http://localhost:8000/login/";
-////                OkHttp3CookieHelper cookieHelper = new OkHttp3CookieHelper();
-////                cookieHelper.setCookie(url, "csrfmiddlewaretoken",
-////                        "jSgfpuhKKZcK8K2NKd1J5etriDxQqRFoQGsTTNeB0O6fSPwyQFXb3DV10FPGxovB");
-////
-////                OkHttpClient client = new OkHttpClient.Builder()
-////                        .cookieJar(cookieHelper.cookieJar())
-////                        .build();
+//                if(name.equals("test") && pwd.equals("12345")) {
+//                    Navigation regFace =new Navigation();
+//                    regFace.setVisible(true);
+//                    dispose();
+//                } else {
 //
-//                RequestBody formBody = new FormBody.Builder()
-//                        .add("username", name) // luyao
-//                        .add("password", pwd) // liluyao123
-//                        .build();
-//                Request request = new Request.Builder()
-//                        .url(url)
-//                        .post(formBody)
-//                        .build();
+//                    JOptionPane.showMessageDialog(null,"Wrong Password / Username");
+//                    username.setText("");
+//                    password.setText("");
+//                    username.requestFocus();
+//                }
+
+
 //
 //                try {
 //                    Response response = client.newCall(request).execute();
