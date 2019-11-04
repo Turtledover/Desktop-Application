@@ -1,21 +1,20 @@
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import java.awt.GridBagLayout;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.SwingConstants;
-import java.awt.Rectangle;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
+import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.table.DefaultTableModel;
 
-import java.awt.GridLayout;
 import javax.swing.JLabel;
-import javax.swing.JTextPane;
 import javax.swing.JButton;
-import java.awt.Dimension;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JPanel;
 import javax.swing.JLayeredPane;
@@ -24,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
@@ -41,6 +41,13 @@ public class Navigation extends JFrame{
     private JTextField textField_3;
     private JTextField textField_4;
     private JButton btnLogou;
+
+    private SwingPropertyChangeSupport pcSupport =
+            new SwingPropertyChangeSupport(this);
+
+    private double USING_CREDIT = 0.0;
+    private double SHARING_CREDIT = 0.0;
+
     /**
      * Launch the application.
      */
@@ -63,6 +70,7 @@ public class Navigation extends JFrame{
         layeredPane.repaint();
         layeredPane.revalidate();
     }
+
     /**
      * Create the application.
      */
@@ -160,16 +168,16 @@ public class Navigation extends JFrame{
         panel_1.add(lblNewLabel_1);
 
         JButton btnNewButton = new JButton("Add Job");
-        btnNewButton.setBounds(232, 417, 117, 29);
+        btnNewButton.setBounds(232, 387, 117, 29);
         panel_1.add(btnNewButton);
 
         JLabel lblNewLabel_2 = new JLabel("Entry File Path*");
         lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_2.setBounds(141, 286, 107, 29);
+        lblNewLabel_2.setBounds(141, 266, 107, 29);
         panel_1.add(lblNewLabel_2);
 
         textField = new JTextField();
-        textField.setBounds(283, 287, 130, 26);
+        textField.setBounds(283, 266, 130, 26);
         panel_1.add(textField);
         textField.setColumns(10);
 
@@ -192,22 +200,22 @@ public class Navigation extends JFrame{
 
         JLabel lblModelPath = new JLabel("Python File Path");
         lblModelPath.setHorizontalAlignment(SwingConstants.CENTER);
-        lblModelPath.setBounds(141, 327, 107, 29);
+        lblModelPath.setBounds(141, 307, 107, 29);
         panel_1.add(lblModelPath);
 
         textField_8 = new JTextField();
         textField_8.setColumns(10);
-        textField_8.setBounds(283, 328, 130, 26);
+        textField_8.setBounds(283, 307, 130, 26);
         panel_1.add(textField_8);
 
         JLabel lblAchivePath = new JLabel("Achive Path");
         lblAchivePath.setHorizontalAlignment(SwingConstants.CENTER);
-        lblAchivePath.setBounds(141, 371, 107, 29);
+        lblAchivePath.setBounds(141, 345, 107, 29);
         panel_1.add(lblAchivePath);
 
         textField_4 = new JTextField();
         textField_4.setColumns(10);
-        textField_4.setBounds(283, 372, 130, 26);
+        textField_4.setBounds(283, 345, 130, 26);
         panel_1.add(textField_4);
 
 
@@ -219,26 +227,26 @@ public class Navigation extends JFrame{
 
         JLabel lblTest = new JLabel("Sharing Credit");
         lblTest.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTest.setBounds(124, 118, 127, 39);
+        lblTest.setBounds(124, 108, 127, 39);
         panel_2.add(lblTest);
 
-        JLabel label = new JLabel("0");
+        final JLabel label = new JLabel(""+SHARING_CREDIT);
         label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setBounds(294, 118, 127, 39);
+        label.setBounds(294, 108, 127, 39);
         panel_2.add(label);
 
         JLabel lblUsingCredit = new JLabel("Using Credit");
         lblUsingCredit.setHorizontalAlignment(SwingConstants.CENTER);
-        lblUsingCredit.setBounds(124, 186, 127, 39);
+        lblUsingCredit.setBounds(124, 176, 127, 39);
         panel_2.add(lblUsingCredit);
 
-        JLabel label_2 = new JLabel("0");
+        final JLabel label_2 = new JLabel(""+USING_CREDIT);
         label_2.setHorizontalAlignment(SwingConstants.CENTER);
-        label_2.setBounds(294, 186, 127, 39);
+        label_2.setBounds(294, 176, 127, 39);
         panel_2.add(label_2);
 
-        btnLogou = new JButton("Logout");
-        btnLogou.setBounds(212, 288, 117, 29);
+        btnLogou = new JButton("Log Out");
+        btnLogou.setBounds(212, 278, 137, 45);
         panel_2.add(btnLogou);
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -275,7 +283,38 @@ public class Navigation extends JFrame{
         mntmProfile.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                switchPanels(panel_2);
+                try{
+                    Connect.HttpGetAndParam req =
+                            new Connect.HttpGetAndParam("http://localhost:8000/services/credit/check_credit/");
+                    String res = req.execute();
+                    System.out.println(res);
+                    JsonParser parser = new JsonParser();
+                    JsonElement jsonTree = parser.parse(res);
+                    if(jsonTree.isJsonObject()) {
+
+                        JsonObject jsonObject = jsonTree.getAsJsonObject();
+                        double new_using_credit = Double.parseDouble(jsonObject.get("using_credit").toString());
+                        double new_sharing_credit= Double.parseDouble(jsonObject.get("sharing_credit").toString());
+
+                        panel_2.remove(label);
+                        JLabel label = new JLabel(""+new_sharing_credit);
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                        label.setBounds(294, 108, 127, 39);
+                        panel_2.add(label);
+                        panel_2.add(label);
+
+                        panel_2.remove(label_2);
+                        JLabel label_2 = new JLabel(""+new_using_credit);
+                        label_2.setHorizontalAlignment(SwingConstants.CENTER);
+                        label_2.setBounds(294, 176, 127, 39);
+                        panel_2.add(label_2);
+                        switchPanels(panel_2);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+
             }
         });
         mntmProfile.setBorder(new LineBorder(new Color(0, 0, 0)));

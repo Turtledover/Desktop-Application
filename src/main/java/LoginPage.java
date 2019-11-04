@@ -1,6 +1,4 @@
-import okhttp3.*;
 import org.apache.http.client.ClientProtocolException;
-import org.riversun.okhttp3.OkHttp3CookieHelper;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -63,9 +61,7 @@ public class LoginPage extends JFrame {
                 Connect.HttpPostAndParam postRequest =
                         new Connect.HttpPostAndParam("http://localhost:8000/login/");
                 try {
-//                    String response = logoutRequest.execute();
                     String response2 = formRequest.execute();
-//                    System.out.println(response);
 
                     // post to board
                     postRequest.addParameter("username", name);
@@ -90,37 +86,6 @@ public class LoginPage extends JFrame {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-//                if(name.equals("test") && pwd.equals("12345")) {
-//                    Navigation regFace =new Navigation();
-//                    regFace.setVisible(true);
-//                    dispose();
-//                } else {
-//
-//                    JOptionPane.showMessageDialog(null,"Wrong Password / Username");
-//                    username.setText("");
-//                    password.setText("");
-//                    username.requestFocus();
-//                }
-
-
-//
-//                try {
-//                    Response response = client.newCall(request).execute();
-//                    if(response.code() == 200){
-//                        Navigation regFace =new Navigation();
-//                        regFace.setVisible(true);
-//                        dispose();
-//                    }else{
-//                        JOptionPane.showMessageDialog(null,"Wrong Password / Username");
-//                        username.setText("");
-//                        password.setText("");
-//                        username.requestFocus();
-//                    }
-//                    // Do something with the response.
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
 
             }
         });
