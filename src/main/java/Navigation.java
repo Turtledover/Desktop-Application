@@ -401,6 +401,10 @@ public class Navigation extends JFrame{
                         JOptionPane.showMessageDialog(null,"Entry file can not be empty");
                         return;
                     }
+                    textField.setText("");
+                    textField_8.setText("");
+                    textField_4.setText("");
+                    textField_App.setText("");
                     if (archives.equals("")) {
                         archives = "hdfs:///user/root/mnist/input/data/mnist.zip#mnist";
                     }
@@ -419,6 +423,7 @@ public class Navigation extends JFrame{
                     req.addParameter("archives", URLEncoder.encode(archives, "UTF-8"));
                     req.addParameter("app_params", URLEncoder.encode(app_params, "UTF-8"));
                     req.addParameter("name", URLEncoder.encode(name, "UTF-8"));
+
                     String res = req.execute();
                     System.out.println(res);
                     JOptionPane.showMessageDialog(null,"Submit job successfully, message:" + res);
