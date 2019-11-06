@@ -3,19 +3,11 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.JPanel;
-import javax.swing.JLayeredPane;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,9 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.*;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JScrollPane;
+import java.net.URLEncoder;
 
 public class Navigation extends JFrame{
 
@@ -39,8 +29,13 @@ public class Navigation extends JFrame{
     private JTextField textField_8;
     private JTextField textField_3;
     private JTextField textField_4;
+    private JTextField textField_App;
     private JButton btnLogou;
     private JButton btnAddJob;
+    private JLabel lblNewLabel_2;
+    private JLabel lblModelPath;
+    private JLabel lblAchivePath;
+    private JLabel lblAppParam;
 
     private double USING_CREDIT = 0.0;
     private double SHARING_CREDIT = 0.0;
@@ -168,13 +163,13 @@ public class Navigation extends JFrame{
         btnAddJob.setBounds(232, 387, 117, 29);
         panel_1.add(btnAddJob);
 
-        JLabel lblNewLabel_2 = new JLabel("Entry File Path*");
+        lblNewLabel_2 = new JLabel("Entry File Path*");
         lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_2.setBounds(141, 266, 107, 29);
+        lblNewLabel_2.setBounds(141, 240, 107, 29);
         panel_1.add(lblNewLabel_2);
 
         textField = new JTextField();
-        textField.setBounds(283, 266, 130, 26);
+        textField.setBounds(283, 240, 130, 26);
         panel_1.add(textField);
         textField.setColumns(10);
 
@@ -196,7 +191,17 @@ public class Navigation extends JFrame{
         model_1.addRow(row_1);
         table_1.setModel(model_1);
 
-        JLabel lblModelPath = new JLabel("Archive Path");
+        lblAppParam = new JLabel("App Params");
+        lblAppParam.setHorizontalAlignment(SwingConstants.CENTER);
+        lblAppParam.setBounds(141, 275, 107, 29);
+        panel_1.add(lblAppParam);
+
+        textField_App = new JTextField();
+        textField_App.setColumns(10);
+        textField_App.setBounds(283, 275, 130, 26);
+        panel_1.add(textField_App);
+
+        lblModelPath = new JLabel("Archive Path");
         lblModelPath.setHorizontalAlignment(SwingConstants.CENTER);
         lblModelPath.setBounds(141, 307, 107, 29);
         panel_1.add(lblModelPath);
@@ -206,7 +211,7 @@ public class Navigation extends JFrame{
         textField_8.setBounds(283, 307, 130, 26);
         panel_1.add(textField_8);
 
-        JLabel lblAchivePath = new JLabel("Python File Path");
+        lblAchivePath = new JLabel("Name");
         lblAchivePath.setHorizontalAlignment(SwingConstants.CENTER);
         lblAchivePath.setBounds(141, 345, 107, 29);
         panel_1.add(lblAchivePath);
@@ -384,6 +389,47 @@ public class Navigation extends JFrame{
         btnAddJob.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 //
+                try{
+                    Connect.HttpGetAndParam req =
+                            new Connect.HttpGetAndParam("http://localhost:8000/services/job/submit/");
+                    String entry_file = textField.getText();
+                    String archives = textField_8.getText();
+                    String name =  textField_4.getText();
+                    String app_params = textField_App.getText();
+
+                    if (entry_file.equals("")) {
+                        JOptionPane.showMessageDialog(null,"Entry file can not be empty");
+                        return;
+                    }
+                    if (archives.equals("")) {
+                        archives = "hdfs:///user/root/mnist/input/data/mnist.zip#mnist";
+                    }
+                    if (app_params.equals("")) {
+                        app_params = " --output mnist/output --format csv";
+                    }
+                    if (name.equals("")) {
+                        name = "MNIST Data Convert";
+                    }
+                    // http://localhost:8000/services/job/submit/?&
+                    // entry_file: "hdfs:///user/root/mnist/input/code/mnist_data_setup.py"
+                    //app_params: --output mnist/output --format csv
+                    //archives: hdfs:///user/root/mnist/input/data/mnist.zip#mnist
+                    //name: MNIST Data Convert
+                    req.addParameter("entry_file", URLEncoder.encode(entry_file, "UTF-8"));
+                    req.addParameter("archives", URLEncoder.encode(archives, "UTF-8"));
+                    req.addParameter("app_params", URLEncoder.encode(app_params, "UTF-8"));
+                    req.addParameter("name", URLEncoder.encode(name, "UTF-8"));
+                    String res = req.execute();
+                    System.out.println(res);
+                    JOptionPane.showMessageDialog(null,"Submit job successfully, message:" + res);
+
+
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+
             }
         });
 
