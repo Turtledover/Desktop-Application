@@ -1,6 +1,5 @@
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.awt.EventQueue;
 
@@ -10,7 +9,6 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingConstants;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
-import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.table.DefaultTableModel;
 
 import javax.swing.JLabel;
@@ -24,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.*;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
@@ -41,9 +40,7 @@ public class Navigation extends JFrame{
     private JTextField textField_3;
     private JTextField textField_4;
     private JButton btnLogou;
-
-    private SwingPropertyChangeSupport pcSupport =
-            new SwingPropertyChangeSupport(this);
+    private JButton btnAddJob;
 
     private double USING_CREDIT = 0.0;
     private double SHARING_CREDIT = 0.0;
@@ -164,12 +161,12 @@ public class Navigation extends JFrame{
 
         JLabel lblNewLabel_1 = new JLabel("Job List");
         lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_1.setBounds(211, 6, 147, 36);
+        lblNewLabel_1.setBounds(200, 6, 147, 36);
         panel_1.add(lblNewLabel_1);
 
-        JButton btnNewButton = new JButton("Add Job");
-        btnNewButton.setBounds(232, 387, 117, 29);
-        panel_1.add(btnNewButton);
+        btnAddJob = new JButton("Add Job");
+        btnAddJob.setBounds(232, 387, 117, 29);
+        panel_1.add(btnAddJob);
 
         JLabel lblNewLabel_2 = new JLabel("Entry File Path*");
         lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
@@ -182,23 +179,24 @@ public class Navigation extends JFrame{
         textField.setColumns(10);
 
 
-        JScrollPane scrollPane_1 = new JScrollPane();
-        scrollPane_1.setBounds(122, 50, 365, 193);
+        final JScrollPane scrollPane_1 = new JScrollPane();
+        scrollPane_1.setBounds(48, 50, 454, 193);
         panel_1.add(scrollPane_1);
 
         table_1 = new JTable();
         scrollPane_1.setViewportView(table_1);
         DefaultTableModel model_1 = (DefaultTableModel) table_1.getModel();
-        Object[] row_1 = { "1", "ImageNet", "/code", "/model", "Running" };
-        model_1.addColumn("ID");
-        model_1.addColumn("Job Name");
-        model_1.addColumn("Root Path");
-        model_1.addColumn("Model Path");
-        model_1.addColumn("Status");
+        Object[] row_1 = { "", "", "", "", "" };
+        model_1.addColumn("job_id");
+        model_1.addColumn("name");
+        model_1.addColumn("status");
+        model_1.addColumn("used_credits");
+        model_1.addColumn("duration");
+        model_1.addColumn("added");
         model_1.addRow(row_1);
         table_1.setModel(model_1);
 
-        JLabel lblModelPath = new JLabel("Python File Path");
+        JLabel lblModelPath = new JLabel("Archive Path");
         lblModelPath.setHorizontalAlignment(SwingConstants.CENTER);
         lblModelPath.setBounds(141, 307, 107, 29);
         panel_1.add(lblModelPath);
@@ -208,7 +206,7 @@ public class Navigation extends JFrame{
         textField_8.setBounds(283, 307, 130, 26);
         panel_1.add(textField_8);
 
-        JLabel lblAchivePath = new JLabel("Achive Path");
+        JLabel lblAchivePath = new JLabel("Python File Path");
         lblAchivePath.setHorizontalAlignment(SwingConstants.CENTER);
         lblAchivePath.setBounds(141, 345, 107, 29);
         panel_1.add(lblAchivePath);
@@ -217,8 +215,6 @@ public class Navigation extends JFrame{
         textField_4.setColumns(10);
         textField_4.setBounds(283, 345, 130, 26);
         panel_1.add(textField_4);
-
-
 
 
         final JPanel panel_2 = new JPanel();
@@ -272,7 +268,63 @@ public class Navigation extends JFrame{
         mntmJob.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                switchPanels(panel_1);
+                try{
+                    Connect.HttpGetAndParam req =
+                            new Connect.HttpGetAndParam("http://localhost:8000/services/job/list/");
+                    String res = req.execute();
+                    System.out.println(res);
+                    JsonParser parser = new JsonParser();
+                    JsonElement jsonTree = parser.parse(res);
+                    if(jsonTree.isJsonObject()) {
+
+                        JsonObject jsonObject = jsonTree.getAsJsonObject();
+                        JsonElement elem = jsonObject.get("result");
+                        if(elem.isJsonObject()){
+                            JsonObject jo= elem.getAsJsonObject();
+
+                            JsonArray jsonArr = jo.getAsJsonArray("jobs");
+                            Gson googleJson = new Gson();
+                            ArrayList jsonObjList = googleJson.fromJson(jsonArr, ArrayList.class);
+
+                            scrollPane_1.remove(table_1);
+
+                            table_1 = new JTable();
+                            scrollPane_1.setViewportView(table_1);
+
+                            boolean addCol = false;
+                            DefaultTableModel model_1 = (DefaultTableModel) table_1.getModel();
+                            for(Object obj:jsonObjList){
+                                List<Object> list  = new ArrayList<>();
+                                LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) obj;
+                                for (Map.Entry<String, Object> entry: map.entrySet()) {
+                                    String k = entry.getKey();
+                                    String v = "";
+                                    if(entry.getValue() instanceof Integer){
+                                        int i_v = (Integer) entry.getValue();
+                                        v = ""+i_v;
+
+                                    }else if (entry.getValue() instanceof Double){
+                                        double d_v = (Double) entry.getValue();
+                                        v = ""+d_v;
+                                    }else{
+                                        v = (String) entry.getValue();
+                                    }
+                                    if(!addCol){
+                                        model_1.addColumn(k);
+                                    }
+                                    list.add(v);
+                                }
+                                model_1.addRow(list.toArray());
+                                list.clear();
+                                addCol = true;
+                            }
+                            table_1.setModel(model_1);
+                        }
+                        switchPanels(panel_1);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
         mntmJob.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -313,8 +365,6 @@ public class Navigation extends JFrame{
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-
-
             }
         });
         mntmProfile.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -322,13 +372,20 @@ public class Navigation extends JFrame{
         action();
     }
     public void action(){
+        // Click Log Out button
         btnLogou.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-
                 LoginPage regFace = new LoginPage();
                 regFace.setVisible(true);
                 dispose();
             }
         });
+        // Click Add Job button
+        btnAddJob.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                //
+            }
+        });
+
     }
 }
