@@ -1,6 +1,12 @@
+import sun.nio.ch.IOUtil;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.lang.*;
+import java.util.Scanner;
 
 public class MachinePage extends JFrame {
 
@@ -59,14 +65,26 @@ public class MachinePage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public void actionMachineShare(){
+    private String initWorker(String cpu_share, String memory_share) {
+        try {
+            Process process = Runtime.getRuntime().exec("python3 init_worker.py " + cpu_share + " " + memory_share);
+            process.waitFor();
+            Scanner scanner = new Scanner(process.getInputStream());
+            return scanner.next();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return exception.getMessage();
+        }
+    }
+
+    public void actionMachineShare() {
         bShare.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 String cpu_share = cpu.getText();
                 String gpu_share = gpu.getText();
                 String memory_share = memory.getText();
                 if(cpu_share.length() > 0 && memory_share.length() > 0) {
-                    MainPage regFace =new MainPage();
+                    MainPage regFace =new MainPage(initWorker(cpu_share, memory_share));
                     regFace.setVisible(true);
                     dispose();
                 } else {
