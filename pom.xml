@@ -9,18 +9,18 @@
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>LoginPage</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-jar-plugin</artifactId>-->
+<!--                <version>3.1.2</version>-->
+<!--                <configuration>-->
+<!--                    <archive>-->
+<!--                        <manifest>-->
+<!--                            <mainClass>LoginPage</mainClass>-->
+<!--                        </manifest>-->
+<!--                    </archive>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -32,9 +32,10 @@
                     </descriptorRefs>
                     <!-- MainClass in mainfest make a executable jar -->
                     <archive>
-                        <manifest>
-                            <mainClass>LoginPage</mainClass>
-                        </manifest>
+                        <manifestFile>src/main/java/META-INF/MANIFEST.MF</manifestFile>
+<!--                        <manifest>-->
+<!--                            <mainClass>LoginPage</mainClass>-->
+<!--                        </manifest>-->
                     </archive>
 
                 </configuration>
