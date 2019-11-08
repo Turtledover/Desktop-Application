@@ -168,12 +168,11 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
 
 
 if __name__ == '__main__':
-    # print "Hello World!"
-    core_num = 4
-    memory_size = 7168
-    # [TBD] Regular user should first register a user account on our app before register their machine
-    basic_env_setup()
-    register_machine(core_num, memory_size, 10, '/root/.ssh/id_rsa.pub', '/root/.ssh/authorized_keys')
-    cluster_setup()
-    config_yarn_resources(core_num, memory_size)
-
+    print("Hello World!")
+#     core_num = 4
+#     memory_size = 7168
+#     # [TBD] Regular user should first register a user account on our app before register their machine
+#     basic_env_setup()
+#     register_machine(core_num, memory_size, 10, '/root/.ssh/id_rsa.pub', '/root/.ssh/authorized_keys')
+#     cluster_setup()
+#     config_yarn_resources(core_num, memory_size)

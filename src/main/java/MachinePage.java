@@ -3,8 +3,7 @@ import sun.nio.ch.IOUtil;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.lang.*;
 import java.util.Scanner;
 
@@ -63,23 +62,61 @@ public class MachinePage extends JFrame {
         setVisible(true);
         actionMachineShare();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        System.out.println("machinepage init");
+
     }
 
-    private String initWorker(String cpu_share, String memory_share) {
+    private String copyToTemp(InputStream ins) {
         try {
-            Process process = Runtime.getRuntime().exec("python3 init_worker.py " + cpu_share + " " + memory_share);
-            process.waitFor();
+            File tempFile = File.createTempFile("turtle", "dover");
+            FileOutputStream outputStream = new FileOutputStream(tempFile);
+            byte[] buffer = new byte[1024];
+            int numbytes = 0;
+            while((numbytes = ins.read(buffer)) > -1) {
+                outputStream.write(buffer, 0, numbytes);
+            }
+            outputStream.close();
+            tempFile.deleteOnExit();
+            return tempFile.getAbsolutePath();
+        } catch(IOException e) {
+            return null;
+        }
+    }
+
+    public String initWorker(String cpu_share, String memory_share) {
+        try {
+            InputStream ins = getClass().getResourceAsStream("init_worker.py");
+            String tempPath = copyToTemp(ins);
+            ins.close();
+
+            System.out.println("tempFile path=" + tempPath);
+            Process process = Runtime.getRuntime().exec("python3 " + tempPath);
+            int exitCode = process.waitFor();
+            System.out.println("exitCode=" + exitCode);
             Scanner scanner = new Scanner(process.getInputStream());
             return scanner.next();
         } catch (Exception exception) {
             exception.printStackTrace();
             return exception.getMessage();
         }
+
+//        try {
+//            Process process = Runtime.getRuntime().exec("python3 init_worker.py " + cpu_share + " " + memory_share);
+//            process.waitFor();
+//            Scanner scanner = new Scanner(process.getInputStream());
+//            return scanner.next();
+//        } catch (Exception exception) {
+//            exception.printStackTrace();
+//            return exception.getMessage();
+//        }
     }
 
     public void actionMachineShare() {
         bShare.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+                System.out.println("actionshare click");
+
                 String cpu_share = cpu.getText();
                 String gpu_share = gpu.getText();
                 String memory_share = memory.getText();

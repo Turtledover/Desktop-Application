@@ -13,7 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.net.URLEncoder;
 
@@ -32,6 +32,7 @@ public class Navigation extends JFrame{
     private JTextField textField_App;
     private JButton btnLogou;
     private JButton btnAddJob;
+    private JButton btnAddNewMachine;
     private JLabel lblNewLabel_2;
     private JLabel lblModelPath;
     private JLabel lblAchivePath;
@@ -87,7 +88,7 @@ public class Navigation extends JFrame{
         lblNewLabel.setBounds(186, 6, 180, 57);
         panel.add(lblNewLabel);
 
-        JButton btnAddNewMachine = new JButton("Add new machine");
+        btnAddNewMachine = new JButton("Add new machine");
         btnAddNewMachine.setBounds(186, 381, 180, 29);
         panel.add(btnAddNewMachine);
 
@@ -409,10 +410,10 @@ public class Navigation extends JFrame{
                         archives = "hdfs:///user/root/mnist/input/data/mnist.zip#mnist";
                     }
                     if (app_params.equals("")) {
-                        app_params = " --output mnist/output --format csv";
+                        app_params = "--output mnist/output --format csv";
                     }
                     if (name.equals("")) {
-                        name = "MNIST Data Convert";
+                        name = "MNIST Data Convert 2";
                     }
                     // http://localhost:8000/services/job/submit/?&
                     // entry_file: "hdfs:///user/root/mnist/input/code/mnist_data_setup.py"
@@ -436,6 +437,42 @@ public class Navigation extends JFrame{
 
 
             }
+        });
+
+        /* Test running python script */
+        btnAddNewMachine.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                System.out.println("add machine button click");
+                MachinePage mcp = new MachinePage();
+                String msg = mcp.initWorker("2", "4G");
+                System.out.println("result=" + msg);
+            }
+
+//            public String initWorker(String cpu_share, String memory_share) {
+//                try {
+//                    InputStream ins = getClass().getResourceAsStream("init_worker.py");
+//                    File tempFile = File.createTempFile("turtle", "dover");
+//                    FileOutputStream outputStream = new FileOutputStream(tempFile);
+//                    byte[] buffer = new byte[1024];
+//                    int numbytes = 0;
+//                    while((numbytes = ins.read(buffer)) > -1) {
+//                        System.out.println("numbytes=" + numbytes);
+//                        outputStream.write(buffer, 0, numbytes);
+//                    }
+//                    outputStream.close();
+//                    tempFile.deleteOnExit();
+//
+//                    System.out.println("tempFile path=" + tempFile.getAbsolutePath());
+//                    Process process = Runtime.getRuntime().exec("python3 " + tempFile.getAbsolutePath());
+//                    int exitCode = process.waitFor();
+//                    System.out.println("exitCode=" + exitCode);
+//                    Scanner scanner = new Scanner(process.getInputStream());
+//                    return scanner.next();
+//                } catch (Exception exception) {
+//                    exception.printStackTrace();
+//                    return exception.getMessage();
+//                }
+//            }
         });
 
     }
