@@ -9,9 +9,9 @@ How too use: find the executable jar file in /out/artifacts/desk_app_jar/desk_ap
 
 * Make sure that you have installed Docker on your machine.
 
-* Go to the `turtledover-docker-test` directory.
+* Go to the root directory of this repo.
 
-* Build the `docker-test` image by running the command `docker build --rm -t docker-test`.
+* Build the `docker-test` image by running the command `docker build --rm -t docker-test .`.
 
 * First install XQuartz through `brew cask install xquartz`.
 
@@ -25,9 +25,11 @@ How too use: find the executable jar file in /out/artifacts/desk_app_jar/desk_ap
 
 * Launch the docker container through `docker run --rm -e DISPLAY=<YOUR_IP_ADDRESS>:0 -v /tmp/.X11-unix:/tmp/.X11-unix -it docker-test /bin/bash`.
 
+* Add the master server's ip address to `/etc/hosts` file through the command: `echo '<master_server_ip_address>\tmaster\n' >> /etc/hosts`.
+
 * Run `./run.sh` in the container.
 
-* Then you can manipulate the GUI app in docker!
+* Then you can manipulate the GUI app in docker! Notice that before using this app, you must add the current docker container to the docker network of the existing cluster.
 
   > For any question, first check the first link in the reference section.
 

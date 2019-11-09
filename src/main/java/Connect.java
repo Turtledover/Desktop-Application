@@ -25,7 +25,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 public class Connect {
-    public static final String localhost = "http://127.0.0.1:8000";
+    public static final String master_base_url = "http://10.0.197.2:8000";
     public static final String yahoo = "http://www.yahoo.co.jp";
     private static CookieStore cookie = new BasicCookieStore();
     private static HttpContext ctx = new BasicHttpContext();

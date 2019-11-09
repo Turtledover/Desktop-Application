@@ -54,12 +54,12 @@ public class LoginPage extends JFrame {
                 String name = username.getText();
                 String pwd = password.getText();
                 Connect.HttpGetAndParam logoutRequest =
-                        new Connect.HttpGetAndParam("http://localhost:8000/login/");
+                        new Connect.HttpGetAndParam(Connect.master_base_url + "/login/");
 
                 Connect.HttpGetAndParam formRequest =
-                        new Connect.HttpGetAndParam("http://localhost:8000/login/");
+                        new Connect.HttpGetAndParam(Connect.master_base_url + "/login/");
                 Connect.HttpPostAndParam postRequest =
-                        new Connect.HttpPostAndParam("http://localhost:8000/login/");
+                        new Connect.HttpPostAndParam(Connect.master_base_url + "/login/");
                 try {
                     String response2 = formRequest.execute();
 

@@ -1,6 +1,7 @@
 import os
 import socket
 import subprocess
+import argparse
 import xml.etree.ElementTree as ET
 
 
@@ -34,6 +35,7 @@ def cluster_setup():
     ]
     for command in scp_commands:
         subprocess.Popen(command).wait()
+
     print("[INFO] finish scp")
 
     envs = {
@@ -59,6 +61,14 @@ def cluster_setup():
     envs['CLASSPATH'] = os.environ['CLASSPATH']
     print("[INFO] finish python env setup")
     print(os.environ)
+
+    rm_commands = [
+        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
+        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
+    ]
+    for rm_command in rm_commands:
+        subprocess.Popen(rm_command).wait()
+    print("[INFO] finish remove the logs and old dataNode directory")
 
     with open('/root/.bashrc', 'a') as f:
         for key in envs:
@@ -105,7 +115,16 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
     # end
 
 
-def register_machine(core_num, memory_size, time_period, public_key_path, authorized_key_path):
+def tensorflow_setup():
+    commands = [
+        'pip3', 'install', 'tensorflow', 'tensorflowonspark==1.4.4',
+    ]
+    for command in commands:
+        subprocess.Popen(command).wait()
+    print('[INFO] finish the tensorflow setup')
+
+
+def register_machine(core_num, memory_size, time_period, public_key_path, authorized_key_path, sessionid, csrftoken):
     """
     Register the user machine on the existing cluster.
     :param core_num:
@@ -115,6 +134,7 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     :param authorized_key_path:
     :return:
     """
+    print('[Function] register_machine')
     import psutil
     import requests
     # The ways to access the machine data is cited from
@@ -122,25 +142,19 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     # https://stackoverflow.com/questions/1006289/how-to-find-out-the-number-of-cpus-using-python
     # https://stackoverflow.com/questions/22102999/get-total-physical-memory-in-python/28161352
     # begin
-
     core_limit = os.cpu_count()
-    assert core_num <= core_limit
-    memory_limit = psutil.virtual_memory().total    # in Bytes
-    assert memory_size <= memory_limit
-
-    # TBD: There should be a user assigned to these three initial machines.
+    memory_limit = psutil.virtual_memory().total  # in Bytes
+    print('contribute cpu cores', core_num, 'with limit', core_limit)
+    print('contribute memory', memory_size, 'with limit', memory_limit)
+    assert core_num <= core_limit and core_num >= 1
+    assert memory_size*1024 <= memory_limit and memory_size >= 1024
 
     # https://stackoverflow.com/questions/22567306/python-requests-file-upload
     # https://stackoverflow.com/questions/13567507/passing-csrftoken-with-python-requests
     # https://www.geeksforgeeks.org/display-hostname-ip-address-python/
     # begin
-    url = 'http://master:8000/services/machine/submit/'
+    url = 'http://10.0.197.2:8000/services/machine/submit/'
     client = requests.session()
-    # client.get(url)
-    # if 'csrftoken' in client.cookies:
-    #     csrf_token = client.cookies['csrftoken']
-    # else:
-    #     csrf_token = client.cookies['csrf']
     files = {
         'public_key': open(public_key_path, 'r')
     }
@@ -152,9 +166,14 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
         'core_num': core_num,
         'memory_size': memory_size,
         'time_period': time_period,
-        # 'csrftoken': csrf_token,
+        'csrfmiddlewaretoken': csrftoken,
     }
-    response = client.post(url, data=data, files=files, headers=dict(Referer=url))
+    cookies = requests.cookies.RequestsCookieJar()
+    cookies.set('sessionid', sessionid)
+    cookies.set('csrftoken', csrftoken)
+    print('Before submit machine request')
+    response = client.post(url, data=data, files=files, headers=dict(Referer=url), cookies=cookies)
+    print('After submit machine request')
     public_keys = response.json()['public_keys']
     with open(authorized_key_path, 'a') as f:
         for public_key in public_keys:
@@ -163,16 +182,25 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     with open('/etc/hosts', 'a') as f:
         for host in host_ip_mapping:
             f.write('{0}\t{1}\n'.format(host_ip_mapping[host], host))
-            # end
-            # end
+    # end
+    # end
 
 
 if __name__ == '__main__':
-    print("Hello World!")
-#     core_num = 4
-#     memory_size = 7168
-#     # [TBD] Regular user should first register a user account on our app before register their machine
-#     basic_env_setup()
-#     register_machine(core_num, memory_size, 10, '/root/.ssh/id_rsa.pub', '/root/.ssh/authorized_keys')
-#     cluster_setup()
-#     config_yarn_resources(core_num, memory_size)
+    parser = argparse.ArgumentParser(description='Initialize the worker server.')
+    parser.add_argument('--cpu-cores', type=int, help='The number of cpu cores to be contributed to the cluster.',
+                        required=True)
+    parser.add_argument('--memory-size', type=int, help='The memory size to be contributed to the cluster.',
+                        required=True)
+    parser.add_argument('--sessionid', type=str, help='The id of the current user session.',
+                        required=True)
+    parser.add_argument('--csrftoken', type=str, help='The csrf_token for the purpose of security.',
+                        required=True)
+    args = vars(parser.parse_args())
+
+    basic_env_setup()
+    register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', '/root/.ssh/authorized_keys',
+                     args['sessionid'], args['csrftoken'])
+    cluster_setup()
+    config_yarn_resources(args['cpu_cores'], args['memory_size'])
+    tensorflow_setup()

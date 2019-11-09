@@ -276,7 +276,7 @@ public class Navigation extends JFrame{
             public void mouseClicked(MouseEvent e) {
                 try{
                     Connect.HttpGetAndParam req =
-                            new Connect.HttpGetAndParam("http://localhost:8000/services/job/list/");
+                            new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/list/");
                     String res = req.execute();
                     System.out.println(res);
                     JsonParser parser = new JsonParser();
@@ -343,7 +343,7 @@ public class Navigation extends JFrame{
             public void mouseClicked(MouseEvent e) {
                 try{
                     Connect.HttpGetAndParam req =
-                            new Connect.HttpGetAndParam("http://localhost:8000/services/credit/check_credit/");
+                            new Connect.HttpGetAndParam(Connect.master_base_url + "/services/credit/check_credit/");
                     String res = req.execute();
                     System.out.println(res);
                     JsonParser parser = new JsonParser();
@@ -392,7 +392,7 @@ public class Navigation extends JFrame{
                 //
                 try{
                     Connect.HttpGetAndParam req =
-                            new Connect.HttpGetAndParam("http://localhost:8000/services/job/submit/");
+                            new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/submit/");
                     String entry_file = textField.getText();
                     String archives = textField_8.getText();
                     String name =  textField_4.getText();
@@ -415,7 +415,7 @@ public class Navigation extends JFrame{
                     if (name.equals("")) {
                         name = "MNIST Data Convert 2";
                     }
-                    // http://localhost:8000/services/job/submit/?&
+                    // Connect.master_base_url + /services/job/submit/?&
                     // entry_file: "hdfs:///user/root/mnist/input/code/mnist_data_setup.py"
                     //app_params: --output mnist/output --format csv
                     //archives: hdfs:///user/root/mnist/input/data/mnist.zip#mnist
@@ -443,8 +443,10 @@ public class Navigation extends JFrame{
         btnAddNewMachine.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 System.out.println("add machine button click");
-                MachinePage mcp = new MachinePage();
-                String msg = mcp.initWorker("2", "4G");
+                String cpu_cores = textField_6.getText();
+                String memory_size = textField_7.getText();
+                // [TBD] Add the error handling of the input here.
+                String msg = MachineLib.initWorker(cpu_cores, memory_size);
                 System.out.println("result=" + msg);
             }
 
