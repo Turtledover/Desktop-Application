@@ -2,6 +2,7 @@ import os
 import socket
 import subprocess
 import argparse
+import logging
 import xml.etree.ElementTree as ET
 
 
@@ -21,7 +22,7 @@ def basic_env_setup():
     ]
     for command in commands:
         subprocess.Popen(command).wait()
-    print("[INFO] finish basic_env_setup")
+   logging.info("Finish basic_env_setup")
 
 
 def cluster_setup():
@@ -36,7 +37,7 @@ def cluster_setup():
     for command in scp_commands:
         subprocess.Popen(command).wait()
 
-    print("[INFO] finish scp")
+    logging.info("Finish scp")
 
     envs = {
         'PATH': '{0}:/usr/local/hadoop/bin:/usr/local/hadoop/sbin:/usr/local/spark/bin'.format(os.environ['PATH']),
@@ -59,8 +60,7 @@ def cluster_setup():
 
     os.environ['CLASSPATH'] = subprocess.check_output(['hadoop', 'classpath', '--glob']).decode().strip('\n')
     envs['CLASSPATH'] = os.environ['CLASSPATH']
-    print("[INFO] finish python env setup")
-    print(os.environ)
+    logging.info("Finish python env setup")
 
     rm_commands = [
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
@@ -68,7 +68,7 @@ def cluster_setup():
     ]
     for rm_command in rm_commands:
         subprocess.Popen(rm_command).wait()
-    print("[INFO] finish remove the logs and old dataNode directory")
+    logging.info("Finish remove the logs and old dataNode directory")
 
     with open('/root/.bashrc', 'a') as f:
         for key in envs:
@@ -76,7 +76,7 @@ def cluster_setup():
     with open('/root/.bash_profile', 'a') as f:
         for key in envs:
             f.write('{0}={1}\n'.format(key, envs[key]))
-    print("[INFO] finish bash env setup")
+    logging.info("Finish bash env setup")
 
 
 def config_yarn_resources(cpu_cores_limit, memory_limit):
@@ -104,14 +104,14 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
     cpu_config_value.text = str(cpu_cores_limit)
     root.append(cpu_config)
     yarn_config.write(yarn_config_path)
-    print("[INFO] finish the yarn config setup")
+    logging.info("Finish the yarn config setup")
     hadoop_commands = [
         ['hdfs', '--daemon', 'start', 'datanode'],
         ['yarn', '--daemon', 'start', 'nodemanager'],
     ]
     for command in hadoop_commands:
         subprocess.Popen(command).wait()
-    print("[INFO] finish the daemon launching")
+    logging("Finish the daemon launching")
     # end
 
 
@@ -121,7 +121,7 @@ def tensorflow_setup():
     ]
     for command in commands:
         subprocess.Popen(command).wait()
-    print('[INFO] finish the tensorflow setup')
+    logging.info("Finish the tensorflow setup")
 
 
 def register_machine(core_num, memory_size, time_period, public_key_path, authorized_key_path, sessionid, csrftoken):
@@ -144,8 +144,8 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     # begin
     core_limit = os.cpu_count()
     memory_limit = psutil.virtual_memory().total  # in Bytes
-    print('contribute cpu cores', core_num, 'with limit', core_limit)
-    print('contribute memory', memory_size, 'with limit', memory_limit)
+    logging.info('contribute cpu cores', core_num, 'with limit', core_limit)
+    logging.info('contribute memory', memory_size, 'with limit', memory_limit)
     assert core_num <= core_limit and core_num >= 1
     assert memory_size*1024 <= memory_limit and memory_size >= 1024
 
@@ -171,9 +171,9 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     cookies = requests.cookies.RequestsCookieJar()
     cookies.set('sessionid', sessionid)
     cookies.set('csrftoken', csrftoken)
-    print('Before submit machine request')
+    logging.info('Before submit machine request')
     response = client.post(url, data=data, files=files, headers=dict(Referer=url), cookies=cookies)
-    print('After submit machine request')
+    logging.info('After submit machine request')
     public_keys = response.json()['public_keys']
     with open(authorized_key_path, 'a') as f:
         for public_key in public_keys:
@@ -197,6 +197,7 @@ if __name__ == '__main__':
     parser.add_argument('--csrftoken', type=str, help='The csrf_token for the purpose of security.',
                         required=True)
     args = vars(parser.parse_args())
+    logging.basicConfig(filename='init_worker.log', level=logging.INFO)
 
     basic_env_setup()
     register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', '/root/.ssh/authorized_keys',
