@@ -22,21 +22,21 @@ public class Navigation extends JFrame{
     private JFrame frame;
     private JLayeredPane layeredPane;
     private JTable table;
-    private JTextField textField;
-    private JTextField textField_6;
-    private JTextField textField_7;
-    private JTable table_1;
-    private JTextField textField_8;
-    private JTextField textField_3;
-    private JTextField textField_4;
-    private JTextField textField_App;
+    private JTextField entryFilePathTextField;
+    private JTextField coreNumtextField;
+    private JTextField memoryTextField;
+    private JTable jobListTable;
+    private JTextField archivePathTextField;
+    private JTextField authorizedKeyPathTextField;
+    private JTextField nameTextField;
+    private JTextField appParamTextField;
     private JButton btnLogou;
     private JButton btnAddJob;
     private JButton btnAddNewMachine;
-    private JLabel lblNewLabel_2;
-    private JLabel lblModelPath;
-    private JLabel lblAchivePath;
-    private JLabel lblAppParam;
+    private JLabel entryFilePathLabel;
+    private JLabel archivePathLabel;
+    private JLabel nameLabel;
+    private JLabel appParamLabel;
 
     private double USING_CREDIT = 0.0;
     private double SHARING_CREDIT = 0.0;
@@ -83,10 +83,10 @@ public class Navigation extends JFrame{
         layeredPane.add(panel, "name_3361087879639943");
         panel.setLayout(null);
 
-        JLabel lblNewLabel = new JLabel("Machine List");
-        lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel.setBounds(186, 6, 180, 57);
-        panel.add(lblNewLabel);
+        JLabel machineListLabel = new JLabel("Machine List");
+        machineListLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        machineListLabel.setBounds(186, 6, 180, 57);
+        panel.add(machineListLabel);
 
         btnAddNewMachine = new JButton("Add new machine");
         btnAddNewMachine.setBounds(186, 381, 180, 29);
@@ -107,81 +107,83 @@ public class Navigation extends JFrame{
         model.addColumn("Status");
         model.addRow(row);
         table.setModel(model);
+        table.setDefaultEditor(Object.class, null);
+
         scrollPane.setViewportView(table);
 
-        JLabel lblCoreNum_1 = new JLabel("Core num");
-        lblCoreNum_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblCoreNum_1.setBounds(93, 248, 158, 29);
-        panel.add(lblCoreNum_1);
+        JLabel coreNumLabel = new JLabel("Core num");
+        coreNumLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        coreNumLabel.setBounds(93, 248, 158, 29);
+        panel.add(coreNumLabel);
 
-        textField_6 = new JTextField();
-        textField_6.setColumns(10);
-        textField_6.setBounds(286, 249, 130, 26);
-        panel.add(textField_6);
+        coreNumtextField = new JTextField();
+        coreNumtextField.setColumns(10);
+        coreNumtextField.setBounds(286, 249, 130, 26);
+        panel.add(coreNumtextField);
 
-        JLabel lblIpPort = new JLabel("Memory");
-        lblIpPort.setHorizontalAlignment(SwingConstants.CENTER);
-        lblIpPort.setBounds(93, 280, 158, 27);
-        panel.add(lblIpPort);
+        JLabel memoryLabel = new JLabel("Memory");
+        memoryLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        memoryLabel.setBounds(93, 280, 158, 27);
+        panel.add(memoryLabel);
 
-        textField_7 = new JTextField();
-        textField_7.setColumns(10);
-        textField_7.setBounds(286, 281, 130, 26);
-        panel.add(textField_7);
+        memoryTextField = new JTextField();
+        memoryTextField.setColumns(10);
+        memoryTextField.setBounds(286, 281, 130, 26);
+        panel.add(memoryTextField);
 
-        JLabel lblSshKeyPath = new JLabel("Authorized key path");
-        lblSshKeyPath.setHorizontalAlignment(SwingConstants.CENTER);
-        lblSshKeyPath.setBounds(90, 219, 161, 29);
-        panel.add(lblSshKeyPath);
+        JLabel authorizedKeyPathLabel = new JLabel("Authorized key path");
+        authorizedKeyPathLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        authorizedKeyPathLabel.setBounds(90, 219, 161, 29);
+        panel.add(authorizedKeyPathLabel);
 
-        textField_3 = new JTextField();
-        textField_3.setColumns(10);
-        textField_3.setBounds(286, 220, 130, 26);
-        panel.add(textField_3);
+        authorizedKeyPathTextField = new JTextField();
+        authorizedKeyPathTextField.setColumns(10);
+        authorizedKeyPathTextField.setBounds(286, 220, 130, 26);
+        panel.add(authorizedKeyPathTextField);
 
-        JLabel lblSshPublicKey = new JLabel("SSH Public Key");
-        lblSshPublicKey.setHorizontalAlignment(SwingConstants.CENTER);
-        lblSshPublicKey.setBounds(93, 319, 158, 27);
-        panel.add(lblSshPublicKey);
+        JLabel sshPublicKeyLabel = new JLabel("SSH Public Key");
+        sshPublicKeyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sshPublicKeyLabel.setBounds(93, 319, 158, 27);
+        panel.add(sshPublicKeyLabel);
 
         JScrollPane scrollPane_2 = new JScrollPane();
         scrollPane_2.setBounds(286, 324, 130, 44);
         panel.add(scrollPane_2);
 
-        JTextArea textArea = new JTextArea();
-        scrollPane_2.setViewportView(textArea);
+        JTextArea sshPublicKeyTextArea = new JTextArea();
+        scrollPane_2.setViewportView(sshPublicKeyTextArea);
 
-        final JPanel panel_1 = new JPanel();
-        layeredPane.add(panel_1, "name_3361101841548929");
-        panel_1.setLayout(null);
+        final JPanel jobPanel = new JPanel();
+        layeredPane.add(jobPanel, "name_3361101841548929");
+        jobPanel.setLayout(null);
 
-        JLabel lblNewLabel_1 = new JLabel("Job List");
-        lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_1.setBounds(200, 6, 147, 36);
-        panel_1.add(lblNewLabel_1);
+        JLabel jobListLabel = new JLabel("Job List");
+        jobListLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        jobListLabel.setBounds(200, 6, 147, 36);
+        jobPanel.add(jobListLabel);
 
         btnAddJob = new JButton("Add Job");
         btnAddJob.setBounds(232, 387, 117, 29);
-        panel_1.add(btnAddJob);
+        jobPanel.add(btnAddJob);
 
-        lblNewLabel_2 = new JLabel("Entry File Path*");
-        lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel_2.setBounds(141, 240, 107, 29);
-        panel_1.add(lblNewLabel_2);
+        entryFilePathLabel = new JLabel("Entry File Path*");
+        entryFilePathLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        entryFilePathLabel.setBounds(141, 240, 107, 29);
+        jobPanel.add(entryFilePathLabel);
 
-        textField = new JTextField();
-        textField.setBounds(283, 240, 130, 26);
-        panel_1.add(textField);
-        textField.setColumns(10);
+        entryFilePathTextField = new JTextField();
+        entryFilePathTextField.setBounds(283, 240, 130, 26);
+        jobPanel.add(entryFilePathTextField);
+        entryFilePathTextField.setColumns(10);
 
 
         final JScrollPane scrollPane_1 = new JScrollPane();
         scrollPane_1.setBounds(48, 50, 454, 193);
-        panel_1.add(scrollPane_1);
+        jobPanel.add(scrollPane_1);
 
-        table_1 = new JTable();
-        scrollPane_1.setViewportView(table_1);
-        DefaultTableModel model_1 = (DefaultTableModel) table_1.getModel();
+        jobListTable = new JTable();
+        scrollPane_1.setViewportView(jobListTable);
+        DefaultTableModel model_1 = (DefaultTableModel) jobListTable.getModel();
         Object[] row_1 = { "", "", "", "", "" };
         model_1.addColumn("job_id");
         model_1.addColumn("name");
@@ -190,66 +192,66 @@ public class Navigation extends JFrame{
         model_1.addColumn("duration");
         model_1.addColumn("added");
         model_1.addRow(row_1);
-        table_1.setModel(model_1);
+        jobListTable.setModel(model_1);
 
-        lblAppParam = new JLabel("App Params");
-        lblAppParam.setHorizontalAlignment(SwingConstants.CENTER);
-        lblAppParam.setBounds(141, 275, 107, 29);
-        panel_1.add(lblAppParam);
+        appParamLabel = new JLabel("App Params");
+        appParamLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        appParamLabel.setBounds(141, 275, 107, 29);
+        jobPanel.add(appParamLabel);
 
-        textField_App = new JTextField();
-        textField_App.setColumns(10);
-        textField_App.setBounds(283, 275, 130, 26);
-        panel_1.add(textField_App);
+        appParamTextField = new JTextField();
+        appParamTextField.setColumns(10);
+        appParamTextField.setBounds(283, 275, 130, 26);
+        jobPanel.add(appParamTextField);
 
-        lblModelPath = new JLabel("Archive Path");
-        lblModelPath.setHorizontalAlignment(SwingConstants.CENTER);
-        lblModelPath.setBounds(141, 307, 107, 29);
-        panel_1.add(lblModelPath);
+        archivePathLabel = new JLabel("Archive Path");
+        archivePathLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        archivePathLabel.setBounds(141, 307, 107, 29);
+        jobPanel.add(archivePathLabel);
 
-        textField_8 = new JTextField();
-        textField_8.setColumns(10);
-        textField_8.setBounds(283, 307, 130, 26);
-        panel_1.add(textField_8);
+        archivePathTextField = new JTextField();
+        archivePathTextField.setColumns(10);
+        archivePathTextField.setBounds(283, 307, 130, 26);
+        jobPanel.add(archivePathTextField);
 
-        lblAchivePath = new JLabel("Name");
-        lblAchivePath.setHorizontalAlignment(SwingConstants.CENTER);
-        lblAchivePath.setBounds(141, 345, 107, 29);
-        panel_1.add(lblAchivePath);
+        nameLabel = new JLabel("Name");
+        nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        nameLabel.setBounds(141, 345, 107, 29);
+        jobPanel.add(nameLabel);
 
-        textField_4 = new JTextField();
-        textField_4.setColumns(10);
-        textField_4.setBounds(283, 345, 130, 26);
-        panel_1.add(textField_4);
+        nameTextField = new JTextField();
+        nameTextField.setColumns(10);
+        nameTextField.setBounds(283, 345, 130, 26);
+        jobPanel.add(nameTextField);
 
 
-        final JPanel panel_2 = new JPanel();
-        layeredPane.add(panel_2, "name_3361104455587356");
-        panel_2.setLayout(null);
+        final JPanel profilePanel = new JPanel();
+        layeredPane.add(profilePanel, "name_3361104455587356");
+        profilePanel.setLayout(null);
 
-        JLabel lblTest = new JLabel("Sharing Credit");
-        lblTest.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTest.setBounds(124, 108, 127, 39);
-        panel_2.add(lblTest);
+        JLabel sharingCreditLabel = new JLabel("Sharing Credit");
+        sharingCreditLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sharingCreditLabel.setBounds(124, 108, 127, 39);
+        profilePanel.add(sharingCreditLabel);
 
-        final JLabel label = new JLabel(""+SHARING_CREDIT);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setBounds(294, 108, 127, 39);
-        panel_2.add(label);
+        final JLabel sharingCreditValue = new JLabel(""+SHARING_CREDIT);
+        sharingCreditValue.setHorizontalAlignment(SwingConstants.CENTER);
+        sharingCreditValue.setBounds(294, 108, 127, 39);
+        profilePanel.add(sharingCreditValue);
 
-        JLabel lblUsingCredit = new JLabel("Using Credit");
-        lblUsingCredit.setHorizontalAlignment(SwingConstants.CENTER);
-        lblUsingCredit.setBounds(124, 176, 127, 39);
-        panel_2.add(lblUsingCredit);
+        JLabel usingCreditLabel = new JLabel("Using Credit");
+        usingCreditLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        usingCreditLabel.setBounds(124, 176, 127, 39);
+        profilePanel.add(usingCreditLabel);
 
-        final JLabel label_2 = new JLabel(""+USING_CREDIT);
-        label_2.setHorizontalAlignment(SwingConstants.CENTER);
-        label_2.setBounds(294, 176, 127, 39);
-        panel_2.add(label_2);
+        final JLabel usingCreditValue = new JLabel(""+USING_CREDIT);
+        usingCreditValue.setHorizontalAlignment(SwingConstants.CENTER);
+        usingCreditValue.setBounds(294, 176, 127, 39);
+        profilePanel.add(usingCreditValue);
 
         btnLogou = new JButton("Log Out");
         btnLogou.setBounds(212, 278, 137, 45);
-        panel_2.add(btnLogou);
+        profilePanel.add(btnLogou);
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
@@ -292,13 +294,14 @@ public class Navigation extends JFrame{
                             Gson googleJson = new Gson();
                             ArrayList jsonObjList = googleJson.fromJson(jsonArr, ArrayList.class);
 
-                            scrollPane_1.remove(table_1);
+                            scrollPane_1.remove(jobListTable);
 
-                            table_1 = new JTable();
-                            scrollPane_1.setViewportView(table_1);
+                            jobListTable = new JTable();
+                            scrollPane_1.setViewportView(jobListTable);
 
                             boolean addCol = false;
-                            DefaultTableModel model_1 = (DefaultTableModel) table_1.getModel();
+                            DefaultTableModel model_1 = (DefaultTableModel) jobListTable.getModel();
+                            jobListTable.setDefaultEditor(Object.class, null);
                             for(Object obj:jsonObjList){
                                 List<Object> list  = new ArrayList<>();
                                 LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) obj;
@@ -324,9 +327,9 @@ public class Navigation extends JFrame{
                                 list.clear();
                                 addCol = true;
                             }
-                            table_1.setModel(model_1);
+                            jobListTable.setModel(model_1);
                         }
-                        switchPanels(panel_1);
+                        switchPanels(jobPanel);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -354,19 +357,19 @@ public class Navigation extends JFrame{
                         double new_using_credit = Double.parseDouble(jsonObject.get("using_credit").toString());
                         double new_sharing_credit= Double.parseDouble(jsonObject.get("sharing_credit").toString());
 
-                        panel_2.remove(label);
+                        profilePanel.remove(sharingCreditValue);
                         JLabel label = new JLabel(""+new_sharing_credit);
                         label.setHorizontalAlignment(SwingConstants.CENTER);
                         label.setBounds(294, 108, 127, 39);
-                        panel_2.add(label);
-                        panel_2.add(label);
+                        profilePanel.add(label);
+                        profilePanel.add(label);
 
-                        panel_2.remove(label_2);
+                        profilePanel.remove(usingCreditValue);
                         JLabel label_2 = new JLabel(""+new_using_credit);
                         label_2.setHorizontalAlignment(SwingConstants.CENTER);
                         label_2.setBounds(294, 176, 127, 39);
-                        panel_2.add(label_2);
-                        switchPanels(panel_2);
+                        profilePanel.add(label_2);
+                        switchPanels(profilePanel);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -393,19 +396,19 @@ public class Navigation extends JFrame{
                 try{
                     Connect.HttpGetAndParam req =
                             new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/submit/");
-                    String entry_file = textField.getText();
-                    String archives = textField_8.getText();
-                    String name =  textField_4.getText();
-                    String app_params = textField_App.getText();
+                    String entry_file = entryFilePathTextField.getText();
+                    String archives = archivePathTextField.getText();
+                    String name =  nameTextField.getText();
+                    String app_params = appParamTextField.getText();
 
                     if (entry_file.equals("")) {
                         JOptionPane.showMessageDialog(null,"Entry file can not be empty");
                         return;
                     }
-                    textField.setText("");
-                    textField_8.setText("");
-                    textField_4.setText("");
-                    textField_App.setText("");
+                    entryFilePathTextField.setText("");
+                    archivePathTextField.setText("");
+                    nameTextField.setText("");
+                    appParamTextField.setText("");
                     if (archives.equals("")) {
                         archives = "hdfs:///user/root/mnist/input/data/mnist.zip#mnist";
                     }
@@ -443,8 +446,8 @@ public class Navigation extends JFrame{
         btnAddNewMachine.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 System.out.println("add machine button click");
-                String cpu_cores = textField_6.getText();
-                String memory_size = textField_7.getText();
+                String cpu_cores = coreNumtextField.getText();
+                String memory_size = memoryTextField.getText();
                 // [TBD] Add the error handling of the input here.
                 String msg = MachineLib.initWorker(cpu_cores, memory_size);
                 System.out.println("result=" + msg);
