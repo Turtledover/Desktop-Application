@@ -21,7 +21,7 @@ final public class MachineLib {
         }
     }
 
-    public static String initWorker(String cpu_share, String memory_share) {
+    public static String initWorker(String authorized_key_path, String cpu_share, String memory_share, String public_key) {
         try {
             InputStream ins = MachineLib.class.getResourceAsStream("init_worker.py");
             String tempPath = copyToTemp(ins);
@@ -30,8 +30,10 @@ final public class MachineLib {
             System.out.println("tempFile path=" + tempPath);
             Connect.getCookies();
             Map<String, String> args = new HashMap<>();
+            args.put("authorized-key-path", authorized_key_path);
             args.put("cpu-cores", cpu_share);
             args.put("memory-size", memory_share);
+//            args.put("public-key", public_key);
             args.put("sessionid", Connect.getCookieByName("sessionid"));
             args.put("csrftoken", Connect.getCookieByName("csrftoken"));
             StringBuilder script_args = new StringBuilder();
