@@ -3,6 +3,7 @@ import socket
 import subprocess
 import argparse
 import logging
+import tempfile
 import xml.etree.ElementTree as ET
 
 
@@ -15,14 +16,14 @@ def basic_env_setup():
         ['apt-get', 'update'],
         ['apt-get', '-y', 'dist-upgrade'],
         ['apt-get', 'install', 'openjdk-8-jdk', 'openssh-server', 'openssh-client', 'python3-pip', 'zip', '-y'],
-        # [TBD] Check if keys have already existed:
+        # TODO Check if keys have already existed:
         ['ssh-keygen', '-t', 'rsa', '-N', '', '-f', '/root/.ssh/id_rsa'],
         ['service', 'ssh', 'start'],
         ['pip3', 'install', 'psutil', 'requests'],
     ]
     for command in commands:
         subprocess.Popen(command).wait()
-   logging.info("Finish basic_env_setup")
+    logging.info("Finish basic_env_setup")
 
 
 def cluster_setup():
@@ -117,24 +118,24 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
 
 def tensorflow_setup():
     commands = [
-        'pip3', 'install', 'tensorflow', 'tensorflowonspark==1.4.4',
+        ['pip3', 'install', 'tensorflow', 'tensorflowonspark==1.4.4'],
     ]
     for command in commands:
         subprocess.Popen(command).wait()
     logging.info("Finish the tensorflow setup")
 
 
-def register_machine(core_num, memory_size, time_period, public_key_path, authorized_key_path, sessionid, csrftoken):
+def register_machine(core_num, memory_size, time_period, public_key, authorized_key_path, sessionid, csrftoken):
     """
     Register the user machine on the existing cluster.
     :param core_num:
     :param memory_size:
     :param time_period:
-    :param public_key_path:
+    :param public_key:
     :param authorized_key_path:
     :return:
     """
-    print('[Function] register_machine')
+    logging.info('Register_machine')
     import psutil
     import requests
     # The ways to access the machine data is cited from
@@ -144,8 +145,8 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     # begin
     core_limit = os.cpu_count()
     memory_limit = psutil.virtual_memory().total  # in Bytes
-    logging.info('contribute cpu cores', core_num, 'with limit', core_limit)
-    logging.info('contribute memory', memory_size, 'with limit', memory_limit)
+    logging.info('contribute cpu cores {0} with limit {1}'.format(core_num, core_limit))
+    logging.info('contribute memory {0} with limit {1}'.format(memory_size, memory_limit))
     assert core_num <= core_limit and core_num >= 1
     assert memory_size*1024 <= memory_limit and memory_size >= 1024
 
@@ -155,10 +156,12 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
     # begin
     url = 'http://10.0.197.2:8000/services/machine/submit/'
     client = requests.session()
+#     tf = tempfile.TemporaryFile()
+#     tf.write(public_key.encode('utf-8')
     files = {
-        'public_key': open(public_key_path, 'r')
+        'public_key': open('/root/.ssh/id_rsa.pub', 'r'),
     }
-    # [TBD] Get the real ip address (Docker version different from the real machine)
+    # TODO Get the real ip address (Docker version different from the real machine)
     hostname = socket.gethostname()
     ip_address = socket.gethostbyname(hostname)
     data = {
@@ -188,10 +191,12 @@ def register_machine(core_num, memory_size, time_period, public_key_path, author
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Initialize the worker server.')
+    parser.add_argument('--authorized-key-path', type=str, help='The path to the authorized keys path.', default='/root/.ssh/authorized_keys')
     parser.add_argument('--cpu-cores', type=int, help='The number of cpu cores to be contributed to the cluster.',
                         required=True)
     parser.add_argument('--memory-size', type=int, help='The memory size to be contributed to the cluster.',
                         required=True)
+#     parser.add_argument('--public-key', type=str, help='The public key of the user machine.')
     parser.add_argument('--sessionid', type=str, help='The id of the current user session.',
                         required=True)
     parser.add_argument('--csrftoken', type=str, help='The csrf_token for the purpose of security.',
@@ -200,7 +205,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename='init_worker.log', level=logging.INFO)
 
     basic_env_setup()
-    register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', '/root/.ssh/authorized_keys',
+    register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', args['authorized_key_path'],
                      args['sessionid'], args['csrftoken'])
     cluster_setup()
     config_yarn_resources(args['cpu_cores'], args['memory_size'])

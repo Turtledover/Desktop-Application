@@ -34,10 +34,12 @@ public class Navigation extends JFrame{
     private JButton btnLogou;
     private JButton btnAddJob;
     private JButton btnAddNewMachine;
+    private JButton btnRemoveMachine;
     private JLabel entryFilePathLabel;
     private JLabel archivePathLabel;
     private JLabel nameLabel;
     private JLabel appParamLabel;
+    private JTextArea sshPublicKeyTextArea;
 
     private double USING_CREDIT = 0.0;
     private double SHARING_CREDIT = 0.0;
@@ -92,6 +94,10 @@ public class Navigation extends JFrame{
         btnAddNewMachine = new JButton("Add new machine");
         btnAddNewMachine.setBounds(186, 381, 180, 29);
         panel.add(btnAddNewMachine);
+
+        btnRemoveMachine = new JButton("Remove the machine");
+        btnRemoveMachine.setBounds(186, 415, 180, 29);
+        panel.add(btnRemoveMachine);
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(93, 53, 392, 154);
@@ -151,7 +157,7 @@ public class Navigation extends JFrame{
         scrollPane_2.setBounds(286, 324, 130, 44);
         panel.add(scrollPane_2);
 
-        JTextArea sshPublicKeyTextArea = new JTextArea();
+        sshPublicKeyTextArea = new JTextArea();
         scrollPane_2.setViewportView(sshPublicKeyTextArea);
 
         final JPanel jobPanel = new JPanel();
@@ -527,10 +533,12 @@ public class Navigation extends JFrame{
         btnAddNewMachine.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 System.out.println("add machine button click");
+                String authorized_key_path = authorizedKeyPathTextField.getText();
                 String cpu_cores = coreNumtextField.getText();
                 String memory_size = memoryTextField.getText();
+                String public_key = sshPublicKeyTextArea.getText();
                 // [TBD] Add the error handling of the input here.
-                String msg = MachineLib.initWorker(cpu_cores, memory_size);
+                String msg = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key);
                 System.out.println("result=" + msg);
             }
 
@@ -559,6 +567,32 @@ public class Navigation extends JFrame{
 //                    return exception.getMessage();
 //                }
 //            }
+        });
+
+        btnRemoveMachine.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    // Stop the HDFS datanode and the YARN nodemanager
+                    Process yarn = Runtime.getRuntime().exec("/usr/local/hadoop/bin/yarn --daemon stop nodemanager");
+                    int yarn_exitcode = yarn.waitFor();
+                    System.out.println("YARN stop nodemanager exit with " + yarn_exitcode);
+                    Process hdfs = Runtime.getRuntime().exec("/usr/local/hadoop/bin/hdfs --daemon stop datanode");
+                    int hdfs_exitcode = hdfs.waitFor();
+                    System.out.println("HDFS stop datanode exit with " + hdfs_exitcode);
+                    // Send the remove machine request to the server
+                    Connect.HttpPostAndParam req =
+                            new Connect.HttpPostAndParam(Connect.master_base_url + "/services/machine/remove/");
+                    req.addParameter("machine_id", "2");
+                    req.addParameter("csrfmiddlewaretoken",
+                            Connect.getCookieByName("csrftoken"));
+                    req.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
+                    String result = req.execute();
+                    System.out.print(result);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
         });
 
     }
