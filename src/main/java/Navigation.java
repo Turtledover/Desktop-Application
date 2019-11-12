@@ -23,7 +23,7 @@ public class Navigation extends JFrame{
 
     private JFrame frame;
     private JLayeredPane layeredPane;
-    private JTable table;
+    private JTable machineTable;
     private JTextField entryFilePathTextField;
     private JTextField coreNumtextField;
     private JTextField memoryTextField;
@@ -83,18 +83,18 @@ public class Navigation extends JFrame{
         getContentPane().add(layeredPane, "name_3361081430437205");
         layeredPane.setLayout(new CardLayout(0, 0));
 
-        final JPanel panel = new JPanel();
-        layeredPane.add(panel, "name_3361087879639943");
-        panel.setLayout(null);
+        final JPanel machinePanel = new JPanel();
+        layeredPane.add(machinePanel, "name_3361087879639943");
+        machinePanel.setLayout(null);
 
         JLabel machineListLabel = new JLabel("Machine List");
         machineListLabel.setHorizontalAlignment(SwingConstants.CENTER);
         machineListLabel.setBounds(186, 6, 180, 57);
-        panel.add(machineListLabel);
+        machinePanel.add(machineListLabel);
 
         btnAddNewMachine = new JButton("Add new machine");
         btnAddNewMachine.setBounds(186, 381, 180, 29);
-        panel.add(btnAddNewMachine);
+        machinePanel.add(btnAddNewMachine);
 
         btnRemoveMachine = new JButton("Remove the machine");
         btnRemoveMachine.setBounds(186, 415, 180, 29);
@@ -102,61 +102,69 @@ public class Navigation extends JFrame{
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(93, 53, 392, 154);
-        panel.add(scrollPane);
+        machinePanel.add(scrollPane);
 
-        table = new JTable();
-        Object[] row = { "1", "8", "8GB", "Available" };
+        machineTable = new JTable(new MachineTableModel());
 
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.addColumn("ID");
-//		model.addColumn("Machine Type");
-        model.addColumn("CPU Core");
-        model.addColumn("Memory");
-        model.addColumn("Status");
-        model.addRow(row);
-        table.setModel(model);
-        table.setDefaultEditor(Object.class, null);
+        machineTable.setEnabled(false);
+        machineTable.setDefaultEditor(Object.class, null);
+        machineTable.setDefaultRenderer(JButton.class, new ButtonRenderer());
+        machineTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = machineTable.getColumnModel().getColumnIndexAtX(e.getX());
+                int row = e.getY()/machineTable.getRowHeight();
+                System.out.println("machine table mouse click row=" + row + " column=" + column);
+                if (row < machineTable.getRowCount() && row >= 0 && column < machineTable.getColumnCount() && column >= 0) {
+                    Object value = machineTable.getValueAt(row, column);
+                    if (value instanceof JButton) {
+                        ((JButton)value).doClick();
+                    }
+                }
+            }
+        });
 
-        scrollPane.setViewportView(table);
+
+        scrollPane.setViewportView(machineTable);
 
         JLabel coreNumLabel = new JLabel("Core num");
         coreNumLabel.setHorizontalAlignment(SwingConstants.CENTER);
         coreNumLabel.setBounds(93, 248, 158, 29);
-        panel.add(coreNumLabel);
+        machinePanel.add(coreNumLabel);
 
         coreNumtextField = new JTextField();
         coreNumtextField.setColumns(10);
         coreNumtextField.setBounds(286, 249, 130, 26);
-        panel.add(coreNumtextField);
+        machinePanel.add(coreNumtextField);
 
         JLabel memoryLabel = new JLabel("Memory");
         memoryLabel.setHorizontalAlignment(SwingConstants.CENTER);
         memoryLabel.setBounds(93, 280, 158, 27);
-        panel.add(memoryLabel);
+        machinePanel.add(memoryLabel);
 
         memoryTextField = new JTextField();
         memoryTextField.setColumns(10);
         memoryTextField.setBounds(286, 281, 130, 26);
-        panel.add(memoryTextField);
+        machinePanel.add(memoryTextField);
 
         JLabel authorizedKeyPathLabel = new JLabel("Authorized key path");
         authorizedKeyPathLabel.setHorizontalAlignment(SwingConstants.CENTER);
         authorizedKeyPathLabel.setBounds(90, 219, 161, 29);
-        panel.add(authorizedKeyPathLabel);
+        machinePanel.add(authorizedKeyPathLabel);
 
         authorizedKeyPathTextField = new JTextField();
         authorizedKeyPathTextField.setColumns(10);
         authorizedKeyPathTextField.setBounds(286, 220, 130, 26);
-        panel.add(authorizedKeyPathTextField);
+        machinePanel.add(authorizedKeyPathTextField);
 
         JLabel sshPublicKeyLabel = new JLabel("SSH Public Key");
         sshPublicKeyLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sshPublicKeyLabel.setBounds(93, 319, 158, 27);
-        panel.add(sshPublicKeyLabel);
+        machinePanel.add(sshPublicKeyLabel);
 
         JScrollPane scrollPane_2 = new JScrollPane();
         scrollPane_2.setBounds(286, 324, 130, 44);
-        panel.add(scrollPane_2);
+        machinePanel.add(scrollPane_2);
 
         sshPublicKeyTextArea = new JTextArea();
         scrollPane_2.setViewportView(sshPublicKeyTextArea);
@@ -272,7 +280,8 @@ public class Navigation extends JFrame{
         mntmMachine.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                switchPanels(panel);
+                refresh_machine_list();
+                switchPanels(machinePanel);
             }
         });
         mntmMachine.setSelected(true);
@@ -389,7 +398,7 @@ public class Navigation extends JFrame{
                             boolean addCol = false;
                             DefaultTableModel model_1 = (DefaultTableModel) jobListTable.getModel();
                             jobListTable.setDefaultEditor(Object.class, null);
-                            for(Object obj:jsonObjList){
+                            for(Object obj:jsonObjList) {
                                 List<Object> list  = new ArrayList<>();
                                 LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) obj;
                                 for (Map.Entry<String, Object> entry: map.entrySet()) {
@@ -603,6 +612,73 @@ public class Navigation extends JFrame{
                 }
             }
         });
-
     }
+
+
+
+    private void refresh_machine_list() {
+        Connect.HttpGetAndParam req =
+                new Connect.HttpGetAndParam(Connect.master_base_url + "/services/machine/list/");
+        try {
+            String res = req.execute();
+            System.out.println(res);
+            JsonParser parser = new JsonParser();
+            JsonElement jsonTree = parser.parse(res);
+
+            if(!jsonTree.isJsonObject()) {
+                return;
+            }
+
+            JsonObject root = jsonTree.getAsJsonObject();
+            JsonElement result = root.get("result");
+            if(!result.isJsonObject()) {
+                return;
+            }
+            JsonObject resObj = result.getAsJsonObject();
+            JsonElement mlistEle = resObj.get("machines");
+            if(!mlistEle.isJsonArray()) {
+                return;
+            }
+
+            MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
+
+            JsonArray mlist = mlistEle.getAsJsonArray();
+            Iterator<JsonElement> mItt = mlist.iterator();
+            while(mItt.hasNext()) {
+                JsonElement mEle = mItt.next();
+                if(!mEle.isJsonObject()) {
+                    continue;
+                }
+                ArrayList<Object> row = new ArrayList<>();
+                JsonObject mObj = mEle.getAsJsonObject();
+
+                final String id = mObj.get("id").getAsString();
+                row.add(id);
+                row.add(mObj.get("hostname").getAsString());
+                row.add(mObj.get("type").getAsString());
+                row.add(String.valueOf(mObj.get("core_num").getAsString()));
+                row.add(String.valueOf(mObj.get("memory").getAsString()));
+                row.add(mObj.get("starttime").getAsString());
+
+                JButton rmBtn = new JButton("Remove");
+                rmBtn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("clicked ID = " + id);
+                    }
+                });
+
+                row.add(rmBtn);
+                machineModel.addRow(row);
+            }
+
+            machineTable.setModel(machineModel);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return;
+    }
+
 }
