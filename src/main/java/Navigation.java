@@ -1,14 +1,14 @@
 import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
 
-import java.awt.EventQueue;
+import java.awt.*;
 
 import javax.swing.*;
-import java.awt.Color;
 import javax.swing.border.LineBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.*;
 import java.net.URLEncoder;
+import java.util.List;
 
 public class Navigation extends JFrame{
 
@@ -163,16 +164,16 @@ public class Navigation extends JFrame{
         jobPanel.add(jobListLabel);
 
         btnAddJob = new JButton("Add Job");
-        btnAddJob.setBounds(232, 387, 117, 29);
+        btnAddJob.setBounds(232, 397, 117, 29);
         jobPanel.add(btnAddJob);
 
         entryFilePathLabel = new JLabel("Entry File Path*");
         entryFilePathLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        entryFilePathLabel.setBounds(141, 240, 107, 29);
+        entryFilePathLabel.setBounds(141, 250, 107, 30);
         jobPanel.add(entryFilePathLabel);
 
         entryFilePathTextField = new JTextField();
-        entryFilePathTextField.setBounds(283, 240, 130, 26);
+        entryFilePathTextField.setBounds(283, 250, 130, 30);
         jobPanel.add(entryFilePathTextField);
         entryFilePathTextField.setColumns(10);
 
@@ -182,6 +183,8 @@ public class Navigation extends JFrame{
         jobPanel.add(scrollPane_1);
 
         jobListTable = new JTable();
+
+
         scrollPane_1.setViewportView(jobListTable);
         DefaultTableModel model_1 = (DefaultTableModel) jobListTable.getModel();
         Object[] row_1 = { "", "", "", "", "" };
@@ -196,32 +199,32 @@ public class Navigation extends JFrame{
 
         appParamLabel = new JLabel("App Params");
         appParamLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        appParamLabel.setBounds(141, 275, 107, 29);
+        appParamLabel.setBounds(141, 285, 107, 30);
         jobPanel.add(appParamLabel);
 
         appParamTextField = new JTextField();
         appParamTextField.setColumns(10);
-        appParamTextField.setBounds(283, 275, 130, 26);
+        appParamTextField.setBounds(283, 285, 130, 30);
         jobPanel.add(appParamTextField);
 
         archivePathLabel = new JLabel("Archive Path");
         archivePathLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        archivePathLabel.setBounds(141, 307, 107, 29);
+        archivePathLabel.setBounds(141, 320, 107, 30);
         jobPanel.add(archivePathLabel);
 
         archivePathTextField = new JTextField();
         archivePathTextField.setColumns(10);
-        archivePathTextField.setBounds(283, 307, 130, 26);
+        archivePathTextField.setBounds(283, 320, 130, 30);
         jobPanel.add(archivePathTextField);
 
         nameLabel = new JLabel("Name");
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        nameLabel.setBounds(141, 345, 107, 29);
+        nameLabel.setBounds(141, 355, 107, 30);
         jobPanel.add(nameLabel);
 
         nameTextField = new JTextField();
         nameTextField.setColumns(10);
-        nameTextField.setBounds(283, 345, 130, 26);
+        nameTextField.setBounds(283, 355, 130, 30);
         jobPanel.add(nameTextField);
 
 
@@ -297,6 +300,83 @@ public class Navigation extends JFrame{
                             scrollPane_1.remove(jobListTable);
 
                             jobListTable = new JTable();
+
+                            final JPopupMenu popupMenu = new JPopupMenu();
+                            JMenuItem getLogItem = new JMenuItem("Get log");
+                            getLogItem.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    int row = jobListTable.getSelectedRow();
+                                    String jobId = jobListTable.getModel().getValueAt(row, 0).toString();
+                                    Connect.HttpGetAndParam req =
+                                            new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/get_log/");
+                                    req.addParameter("job_id", String.valueOf(Integer.parseInt(jobId)));
+                                    String res = "";
+                                    try {
+                                        res = req.execute();
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                    System.out.println(res);
+//                                    http://localhost:8000/services/job/get_log/?job_id=1
+                                    // create a JTextArea
+                                    JTextArea textArea = new JTextArea(16, 30);
+                                    JsonParser parser = new JsonParser();
+                                    JsonElement jsonTree = parser.parse(res);
+
+                                    if(jsonTree.isJsonObject()) {
+
+                                        JsonObject jsonObject = jsonTree.getAsJsonObject();
+                                        JsonElement elem = jsonObject.get("result");
+                                        res = elem.toString();
+                                        if(elem.isJsonObject()){
+//                                            res = elem.getAsJsonObject().get("logs").toString();
+                                            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+
+                                            res = gson.toJson(elem.getAsJsonObject().get("logs")); // done
+                                        }
+                                    }
+                                    textArea.setText(res);
+                                    textArea.setEditable(false);
+
+                                    // wrap a scrollpane around it
+                                    JScrollPane scrollPane = new JScrollPane(textArea);
+
+                                    // display them in a message dialog
+                                    JOptionPane.showMessageDialog(frame, scrollPane);
+                                }
+                            });
+                            popupMenu.addPopupMenuListener(new PopupMenuListener() {
+
+                                @Override
+                                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                                    SwingUtilities.invokeLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            int rowAtPoint = jobListTable.rowAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), jobListTable));
+                                            if (rowAtPoint > -1) {
+                                                jobListTable.setRowSelectionInterval(rowAtPoint, rowAtPoint);
+                                            }
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                                    // TODO Auto-generated method stub
+
+                                }
+
+                                @Override
+                                public void popupMenuCanceled(PopupMenuEvent e) {
+                                    // TODO Auto-generated method stub
+
+                                }
+                            });
+                            popupMenu.add(getLogItem);
+                            jobListTable.setComponentPopupMenu(popupMenu);
+
                             scrollPane_1.setViewportView(jobListTable);
 
                             boolean addCol = false;
@@ -308,8 +388,9 @@ public class Navigation extends JFrame{
                                 for (Map.Entry<String, Object> entry: map.entrySet()) {
                                     String k = entry.getKey();
                                     String v = "";
-                                    if(entry.getValue() instanceof Integer){
-                                        int i_v = (Integer) entry.getValue();
+                                    if(entry.getValue() instanceof Integer || k.equals("job_id")){
+                                        double d_v = (Double) entry.getValue();
+                                        int i_v = (int) d_v;
                                         v = ""+i_v;
 
                                     }else if (entry.getValue() instanceof Double){
@@ -430,7 +511,7 @@ public class Navigation extends JFrame{
 
                     String res = req.execute();
                     System.out.println(res);
-                    JOptionPane.showMessageDialog(null,"Submit job successfully, message:" + res);
+                    JOptionPane.showMessageDialog(null,"Submit job successfully");
 
 
 
