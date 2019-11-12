@@ -45,6 +45,8 @@ public class Navigation extends JFrame{
     private double USING_CREDIT = 0.0;
     private double SHARING_CREDIT = 0.0;
 
+    private Timer jobTimer;
+
     /**
      * Launch the application.
      */
@@ -96,9 +98,9 @@ public class Navigation extends JFrame{
         btnAddNewMachine.setBounds(186, 381, 180, 29);
         machinePanel.add(btnAddNewMachine);
 
-        btnRemoveMachine = new JButton("Remove the machine");
-        btnRemoveMachine.setBounds(186, 415, 180, 29);
-        panel.add(btnRemoveMachine);
+//        btnRemoveMachine = new JButton("Remove the machine");
+//        btnRemoveMachine.setBounds(186, 415, 180, 29);
+//        panel.add(btnRemoveMachine);
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(93, 53, 392, 154);
@@ -280,6 +282,10 @@ public class Navigation extends JFrame{
         mntmMachine.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(jobTimer != null) {
+                    jobTimer.cancel();
+                    jobTimer = null;
+                }
                 refresh_machine_list();
                 switchPanels(machinePanel);
             }
@@ -436,9 +442,12 @@ public class Navigation extends JFrame{
         mntmJob.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(jobTimer != null) {
+                    return;
+                }
                 TimerTask task = new ListJobTask();
-                Timer timer = new Timer();
-                timer.schedule(task, 0,5000); // line 1
+                jobTimer = new Timer();
+                jobTimer.schedule(task, 0,5000); // line 1
             }
         });
         mntmJob.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -449,6 +458,11 @@ public class Navigation extends JFrame{
         mntmProfile.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(jobTimer != null) {
+                    jobTimer.cancel();
+                    jobTimer = null;
+                }
+
                 try{
                     Connect.HttpGetAndParam req =
                             new Connect.HttpGetAndParam(Connect.master_base_url + "/services/credit/check_credit/");
@@ -462,18 +476,19 @@ public class Navigation extends JFrame{
                         double new_using_credit = Double.parseDouble(jsonObject.get("using_credit").toString());
                         double new_sharing_credit= Double.parseDouble(jsonObject.get("sharing_credit").toString());
 
-                        profilePanel.remove(sharingCreditValue);
-                        JLabel label = new JLabel(""+new_sharing_credit);
-                        label.setHorizontalAlignment(SwingConstants.CENTER);
-                        label.setBounds(294, 108, 127, 39);
-                        profilePanel.add(label);
-                        profilePanel.add(label);
+                        sharingCreditValue.setText("" + new_sharing_credit);
+//                        profilePanel.remove(sharingCreditValue);
+//                        JLabel label = new JLabel(""+new_sharing_credit);
+//                        label.setHorizontalAlignment(SwingConstants.CENTER);
+//                        label.setBounds(294, 108, 127, 39);
+//                        profilePanel.add(label);
 
-                        profilePanel.remove(usingCreditValue);
-                        JLabel label_2 = new JLabel(""+new_using_credit);
-                        label_2.setHorizontalAlignment(SwingConstants.CENTER);
-                        label_2.setBounds(294, 176, 127, 39);
-                        profilePanel.add(label_2);
+                        usingCreditValue.setText("" + new_using_credit);
+//                        profilePanel.remove(usingCreditValue);
+//                        JLabel label_2 = new JLabel(""+new_using_credit);
+//                        label_2.setHorizontalAlignment(SwingConstants.CENTER);
+//                        label_2.setBounds(294, 176, 127, 39);
+//                        profilePanel.add(label_2);
                         switchPanels(profilePanel);
                     }
                 } catch (IOException ex) {
@@ -587,38 +602,62 @@ public class Navigation extends JFrame{
 //            }
         });
 
-        btnRemoveMachine.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    // Stop the HDFS datanode and the YARN nodemanager
-                    Process yarn = Runtime.getRuntime().exec("/usr/local/hadoop/bin/yarn --daemon stop nodemanager");
-                    int yarn_exitcode = yarn.waitFor();
-                    System.out.println("YARN stop nodemanager exit with " + yarn_exitcode);
-                    Process hdfs = Runtime.getRuntime().exec("/usr/local/hadoop/bin/hdfs --daemon stop datanode");
-                    int hdfs_exitcode = hdfs.waitFor();
-                    System.out.println("HDFS stop datanode exit with " + hdfs_exitcode);
-                    // Send the remove machine request to the server
-                    Connect.HttpPostAndParam req =
-                            new Connect.HttpPostAndParam(Connect.master_base_url + "/services/machine/remove/");
-                    req.addParameter("machine_id", "2");
-                    req.addParameter("csrfmiddlewaretoken",
-                            Connect.getCookieByName("csrftoken"));
-                    req.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
-                    String result = req.execute();
-                    System.out.print(result);
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }
-        });
+//        btnRemoveMachine.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                try {
+//                    // Stop the HDFS datanode and the YARN nodemanager
+//                    Process yarn = Runtime.getRuntime().exec("/usr/local/hadoop/bin/yarn --daemon stop nodemanager");
+//                    int yarn_exitcode = yarn.waitFor();
+//                    System.out.println("YARN stop nodemanager exit with " + yarn_exitcode);
+//                    Process hdfs = Runtime.getRuntime().exec("/usr/local/hadoop/bin/hdfs --daemon stop datanode");
+//                    int hdfs_exitcode = hdfs.waitFor();
+//                    System.out.println("HDFS stop datanode exit with " + hdfs_exitcode);
+//                    // Send the remove machine request to the server
+//                    Connect.HttpPostAndParam req =
+//                            new Connect.HttpPostAndParam(Connect.master_base_url + "/services/machine/remove/");
+//                    req.addParameter("machine_id", "2");
+//                    req.addParameter("csrfmiddlewaretoken",
+//                            Connect.getCookieByName("csrftoken"));
+//                    req.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
+//                    String result = req.execute();
+//                    System.out.print(result);
+//                } catch (Exception exception) {
+//                    exception.printStackTrace();
+//                }
+//            }
+//        });
     }
 
-
+    private void remove_machine(String id) {
+        try {
+            // Stop the HDFS datanode and the YARN nodemanager
+            Process yarn = Runtime.getRuntime().exec("/usr/local/hadoop/bin/yarn --daemon stop nodemanager");
+            int yarn_exitcode = yarn.waitFor();
+            System.out.println("YARN stop nodemanager exit with " + yarn_exitcode);
+            Process hdfs = Runtime.getRuntime().exec("/usr/local/hadoop/bin/hdfs --daemon stop datanode");
+            int hdfs_exitcode = hdfs.waitFor();
+            System.out.println("HDFS stop datanode exit with " + hdfs_exitcode);
+            // Send the remove machine request to the server
+            Connect.HttpPostAndParam req =
+                    new Connect.HttpPostAndParam(Connect.master_base_url + "/services/machine/remove/");
+            req.addParameter("machine_id", id);
+            req.addParameter("csrfmiddlewaretoken",
+                    Connect.getCookieByName("csrftoken"));
+            req.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
+            String result = req.execute();
+            System.out.print(result);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
 
     private void refresh_machine_list() {
         Connect.HttpGetAndParam req =
                 new Connect.HttpGetAndParam(Connect.master_base_url + "/services/machine/list/");
+
+        MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
+        machineModel.clearData();
         try {
             String res = req.execute();
             System.out.println(res);
@@ -639,8 +678,6 @@ public class Navigation extends JFrame{
             if(!mlistEle.isJsonArray()) {
                 return;
             }
-
-            MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
 
             JsonArray mlist = mlistEle.getAsJsonArray();
             Iterator<JsonElement> mItt = mlist.iterator();
@@ -665,6 +702,7 @@ public class Navigation extends JFrame{
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         System.out.println("clicked ID = " + id);
+                        remove_machine(id);
                     }
                 });
 

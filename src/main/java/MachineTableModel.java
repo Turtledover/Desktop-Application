@@ -8,6 +8,10 @@ public class MachineTableModel extends AbstractTableModel {
     };
     private ArrayList<ArrayList<Object>> data = new ArrayList<>();
 
+    public void clearData() {
+        data = new ArrayList<>();
+    }
+
     public void addRow(ArrayList<Object> row) {
         data.add(row);
     }
