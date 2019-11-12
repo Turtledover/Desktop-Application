@@ -111,7 +111,7 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
     ]
     for command in hadoop_commands:
         subprocess.Popen(command).wait()
-    logging("Finish the daemon launching")
+    logging.info("Finish the daemon launching")
     # end
 
 
