@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.*;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Timer;
 
 public class Navigation extends JFrame{
 
@@ -282,9 +283,9 @@ public class Navigation extends JFrame{
         menuBar.add(mntmMachine);
 
         JMenuItem mntmJob = new JMenuItem("Job");
-        mntmJob.addMouseListener(new MouseAdapter() {
+        class ListJobTask extends TimerTask {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void run() {
                 try{
                     Connect.HttpGetAndParam req =
                             new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/list/");
@@ -421,6 +422,14 @@ public class Navigation extends JFrame{
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+            }
+        }
+        mntmJob.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                TimerTask task = new ListJobTask();
+                Timer timer = new Timer();
+                timer.schedule(task, 0,5000); // line 1
             }
         });
         mntmJob.setBorder(new LineBorder(new Color(0, 0, 0)));
