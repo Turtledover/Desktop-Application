@@ -82,11 +82,11 @@ public class Navigation extends JFrame{
 
 
         layeredPane = new JLayeredPane();
-        getContentPane().add(layeredPane, "name_3361081430437205");
+        getContentPane().add(layeredPane, "layer_panel");
         layeredPane.setLayout(new CardLayout(0, 0));
 
         final JPanel machinePanel = new JPanel();
-        layeredPane.add(machinePanel, "name_3361087879639943");
+        layeredPane.add(machinePanel, "machine_panel");
         machinePanel.setLayout(null);
 
         JLabel machineListLabel = new JLabel("Machine List");
@@ -246,7 +246,7 @@ public class Navigation extends JFrame{
 
 
         final JPanel profilePanel = new JPanel();
-        layeredPane.add(profilePanel, "name_3361104455587356");
+        layeredPane.add(profilePanel, "profile_panel");
         profilePanel.setLayout(null);
 
         JLabel sharingCreditLabel = new JLabel("Sharing Credit");
@@ -340,7 +340,6 @@ public class Navigation extends JFrame{
                                         ex.printStackTrace();
                                     }
                                     System.out.println(res);
-//                                    http://localhost:8000/services/job/get_log/?job_id=1
                                     // create a JTextArea
                                     JTextArea textArea = new JTextArea(16, 30);
                                     JsonParser parser = new JsonParser();
@@ -352,7 +351,6 @@ public class Navigation extends JFrame{
                                         JsonElement elem = jsonObject.get("result");
                                         res = elem.toString();
                                         if(elem.isJsonObject()){
-//                                            res = elem.getAsJsonObject().get("logs").toString();
                                             Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 
