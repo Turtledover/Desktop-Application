@@ -21,7 +21,7 @@ final public class MachineLib {
         }
     }
 
-    public static String initWorker(String authorized_key_path, String cpu_share, String memory_share, String public_key) {
+    public static boolean initWorker(String authorized_key_path, String cpu_share, String memory_share, String public_key) {
         try {
             InputStream ins = MachineLib.class.getResourceAsStream("init_worker.py");
             String tempPath = copyToTemp(ins);
@@ -52,10 +52,15 @@ final public class MachineLib {
                 System.out.println(scanner2.nextLine());
             }
             System.out.println("exitCode=" + exitCode);
-            return "Success!";
+
+            if(exitCode == 0) {
+                return true;
+            }
+
         } catch (Exception exception) {
             exception.printStackTrace();
-            return exception.getMessage();
         }
+
+        return false;
     }
 }

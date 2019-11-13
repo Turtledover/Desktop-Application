@@ -41,6 +41,7 @@ public class Navigation extends JFrame{
     private JLabel nameLabel;
     private JLabel appParamLabel;
     private JTextArea sshPublicKeyTextArea;
+    private JPanel machinePanel;
 
     private double USING_CREDIT = 0.0;
     private double SHARING_CREDIT = 0.0;
@@ -85,7 +86,7 @@ public class Navigation extends JFrame{
         getContentPane().add(layeredPane, "name_3361081430437205");
         layeredPane.setLayout(new CardLayout(0, 0));
 
-        final JPanel machinePanel = new JPanel();
+        machinePanel = new JPanel();
         layeredPane.add(machinePanel, "name_3361087879639943");
         machinePanel.setLayout(null);
 
@@ -499,6 +500,8 @@ public class Navigation extends JFrame{
         mntmProfile.setBorder(new LineBorder(new Color(0, 0, 0)));
         menuBar.add(mntmProfile);
         action();
+        refresh_machine_list();
+        switchPanels(machinePanel);
     }
     public void action(){
         // Click Log Out button
@@ -571,62 +574,20 @@ public class Navigation extends JFrame{
                 String memory_size = memoryTextField.getText();
                 String public_key = sshPublicKeyTextArea.getText();
                 // [TBD] Add the error handling of the input here.
-                String msg = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key);
-                System.out.println("result=" + msg);
+                boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key);
+
+                if(success) {
+                    JOptionPane.showMessageDialog(null,"Success!");
+                    refresh_machine_list();
+                    switchPanels(machinePanel);
+                } else {
+                    JOptionPane.showMessageDialog(null,"Fail!");
+                }
+
+//                System.out.println("result=" + msg);
             }
 
-//            public String initWorker(String cpu_share, String memory_share) {
-//                try {
-//                    InputStream ins = getClass().getResourceAsStream("init_worker.py");
-//                    File tempFile = File.createTempFile("turtle", "dover");
-//                    FileOutputStream outputStream = new FileOutputStream(tempFile);
-//                    byte[] buffer = new byte[1024];
-//                    int numbytes = 0;
-//                    while((numbytes = ins.read(buffer)) > -1) {
-//                        System.out.println("numbytes=" + numbytes);
-//                        outputStream.write(buffer, 0, numbytes);
-//                    }
-//                    outputStream.close();
-//                    tempFile.deleteOnExit();
-//
-//                    System.out.println("tempFile path=" + tempFile.getAbsolutePath());
-//                    Process process = Runtime.getRuntime().exec("python3 " + tempFile.getAbsolutePath());
-//                    int exitCode = process.waitFor();
-//                    System.out.println("exitCode=" + exitCode);
-//                    Scanner scanner = new Scanner(process.getInputStream());
-//                    return scanner.next();
-//                } catch (Exception exception) {
-//                    exception.printStackTrace();
-//                    return exception.getMessage();
-//                }
-//            }
         });
-
-//        btnRemoveMachine.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                try {
-//                    // Stop the HDFS datanode and the YARN nodemanager
-//                    Process yarn = Runtime.getRuntime().exec("/usr/local/hadoop/bin/yarn --daemon stop nodemanager");
-//                    int yarn_exitcode = yarn.waitFor();
-//                    System.out.println("YARN stop nodemanager exit with " + yarn_exitcode);
-//                    Process hdfs = Runtime.getRuntime().exec("/usr/local/hadoop/bin/hdfs --daemon stop datanode");
-//                    int hdfs_exitcode = hdfs.waitFor();
-//                    System.out.println("HDFS stop datanode exit with " + hdfs_exitcode);
-//                    // Send the remove machine request to the server
-//                    Connect.HttpPostAndParam req =
-//                            new Connect.HttpPostAndParam(Connect.master_base_url + "/services/machine/remove/");
-//                    req.addParameter("machine_id", "2");
-//                    req.addParameter("csrfmiddlewaretoken",
-//                            Connect.getCookieByName("csrftoken"));
-//                    req.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
-//                    String result = req.execute();
-//                    System.out.print(result);
-//                } catch (Exception exception) {
-//                    exception.printStackTrace();
-//                }
-//            }
-//        });
     }
 
     private void remove_machine(String id) {
