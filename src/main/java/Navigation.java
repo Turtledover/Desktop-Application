@@ -536,7 +536,7 @@ public class Navigation extends JFrame{
                         app_params = "--output mnist/output --format csv";
                     }
                     if (name.equals("")) {
-                        name = "MNIST Data Convert 2";
+                        name = "Default Name";
                     }
                     // Connect.master_base_url + /services/job/submit/?&
                     // entry_file: "hdfs:///user/root/mnist/input/code/mnist_data_setup.py"
@@ -550,7 +550,7 @@ public class Navigation extends JFrame{
 
                     String res = req.execute();
                     System.out.println(res);
-                    JOptionPane.showMessageDialog(null,"Submit job successfully");
+                    JOptionPane.showMessageDialog(frame,"Submit job successfully");
 
 
 
