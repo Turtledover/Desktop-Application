@@ -658,37 +658,45 @@ public class Navigation extends JFrame{
 
         MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
         machineModel.clearData();
+
+        String res = null;
         try {
-            String res = req.execute();
-            System.out.println(res);
-            JsonParser parser = new JsonParser();
-            JsonElement jsonTree = parser.parse(res);
+            res = req.execute();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
 
-            if(!jsonTree.isJsonObject()) {
-                return;
+        System.out.println(res);
+        JsonParser parser = new JsonParser();
+        JsonElement jsonTree = parser.parse(res);
+
+        if(jsonTree == null || !jsonTree.isJsonObject()) {
+            return;
+        }
+
+        JsonObject root = jsonTree.getAsJsonObject();
+        JsonElement result = root.get("result");
+        if(result == null || !result.isJsonObject()) {
+            return;
+        }
+        JsonObject resObj = result.getAsJsonObject();
+        JsonElement mlistEle = resObj.get("machines");
+        if(mlistEle == null || !mlistEle.isJsonArray()) {
+            return;
+        }
+
+        JsonArray mlist = mlistEle.getAsJsonArray();
+        Iterator<JsonElement> mItt = mlist.iterator();
+        while(mItt.hasNext()) {
+            JsonElement mEle = mItt.next();
+            if(!mEle.isJsonObject()) {
+                continue;
             }
+            ArrayList<Object> row = new ArrayList<>();
+            JsonObject mObj = mEle.getAsJsonObject();
 
-            JsonObject root = jsonTree.getAsJsonObject();
-            JsonElement result = root.get("result");
-            if(!result.isJsonObject()) {
-                return;
-            }
-            JsonObject resObj = result.getAsJsonObject();
-            JsonElement mlistEle = resObj.get("machines");
-            if(!mlistEle.isJsonArray()) {
-                return;
-            }
-
-            JsonArray mlist = mlistEle.getAsJsonArray();
-            Iterator<JsonElement> mItt = mlist.iterator();
-            while(mItt.hasNext()) {
-                JsonElement mEle = mItt.next();
-                if(!mEle.isJsonObject()) {
-                    continue;
-                }
-                ArrayList<Object> row = new ArrayList<>();
-                JsonObject mObj = mEle.getAsJsonObject();
-
+            try{
                 final String id = mObj.get("id").getAsString();
                 row.add(id);
                 row.add(mObj.get("hostname").getAsString());
@@ -708,13 +716,14 @@ public class Navigation extends JFrame{
 
                 row.add(rmBtn);
                 machineModel.addRow(row);
+            } catch (NullPointerException ex) {
+                System.err.println("Missing attributes");
+                ex.printStackTrace();
             }
 
-            machineTable.setModel(machineModel);
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
+
+        machineTable.setModel(machineModel);
 
         return;
     }
