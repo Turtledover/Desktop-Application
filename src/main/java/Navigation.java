@@ -25,6 +25,7 @@ public class Navigation extends JFrame{
     private JLayeredPane layeredPane;
     private JTable machineTable;
     private JTextField entryFilePathTextField;
+    private JTextField libsTextField;
     private JTextField coreNumtextField;
     private JTextField memoryTextField;
     private JTable jobListTable;
@@ -35,8 +36,10 @@ public class Navigation extends JFrame{
     private JButton btnLogou;
     private JButton btnAddJob;
     private JButton btnAddNewMachine;
+    private JButton btnGetContributionHistory;
     private JButton btnRemoveMachine;
     private JLabel entryFilePathLabel;
+    private JLabel libsLabel;
     private JLabel archivePathLabel;
     private JLabel nameLabel;
     private JLabel appParamLabel;
@@ -96,9 +99,13 @@ public class Navigation extends JFrame{
         machinePanel.add(machineListLabel);
 
         btnAddNewMachine = new JButton("Add new machine");
-        btnAddNewMachine.setBounds(186, 381, 180, 29);
+        btnAddNewMachine.setBounds(86, 381, 180, 29);
         machinePanel.add(btnAddNewMachine);
 
+
+        btnGetContributionHistory = new JButton("Get contribution history");
+        btnGetContributionHistory.setBounds(286, 381, 220, 29);
+        machinePanel.add(btnGetContributionHistory);
 //        btnRemoveMachine = new JButton("Remove the machine");
 //        btnRemoveMachine.setBounds(186, 415, 180, 29);
 //        panel.add(btnRemoveMachine);
@@ -187,13 +194,23 @@ public class Navigation extends JFrame{
 
         entryFilePathLabel = new JLabel("Entry File Path*");
         entryFilePathLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        entryFilePathLabel.setBounds(141, 250, 107, 30);
+        entryFilePathLabel.setBounds(141, 250, 107, 20);
         jobPanel.add(entryFilePathLabel);
 
         entryFilePathTextField = new JTextField();
-        entryFilePathTextField.setBounds(283, 250, 130, 30);
+        entryFilePathTextField.setBounds(283, 250, 130, 20);
         jobPanel.add(entryFilePathTextField);
         entryFilePathTextField.setColumns(10);
+
+        libsLabel = new JLabel("Libs");
+        libsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        libsLabel.setBounds(141, 280, 107, 20);
+        jobPanel.add(libsLabel);
+
+        libsTextField = new JTextField();
+        libsTextField.setBounds(283, 280, 130, 20);
+        jobPanel.add(libsTextField);
+        libsTextField.setColumns(10);
 
 
         final JScrollPane scrollPane_1 = new JScrollPane();
@@ -217,32 +234,32 @@ public class Navigation extends JFrame{
 
         appParamLabel = new JLabel("App Params");
         appParamLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        appParamLabel.setBounds(141, 285, 107, 30);
+        appParamLabel.setBounds(141, 310, 107, 20);
         jobPanel.add(appParamLabel);
 
         appParamTextField = new JTextField();
         appParamTextField.setColumns(10);
-        appParamTextField.setBounds(283, 285, 130, 30);
+        appParamTextField.setBounds(283, 310, 130, 20);
         jobPanel.add(appParamTextField);
 
         archivePathLabel = new JLabel("Archive Path");
         archivePathLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        archivePathLabel.setBounds(141, 320, 107, 30);
+        archivePathLabel.setBounds(141, 340, 107, 20);
         jobPanel.add(archivePathLabel);
 
         archivePathTextField = new JTextField();
         archivePathTextField.setColumns(10);
-        archivePathTextField.setBounds(283, 320, 130, 30);
+        archivePathTextField.setBounds(283, 340, 130, 20);
         jobPanel.add(archivePathTextField);
 
         nameLabel = new JLabel("Name");
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        nameLabel.setBounds(141, 355, 107, 30);
+        nameLabel.setBounds(141, 370, 107, 20);
         jobPanel.add(nameLabel);
 
         nameTextField = new JTextField();
         nameTextField.setColumns(10);
-        nameTextField.setBounds(283, 355, 130, 30);
+        nameTextField.setBounds(283, 370, 130, 20);
         jobPanel.add(nameTextField);
 
 
@@ -521,7 +538,10 @@ public class Navigation extends JFrame{
                     String archives = archivePathTextField.getText();
                     String name =  nameTextField.getText();
                     String app_params = appParamTextField.getText();
-
+                    String libs = libsTextField.getText();
+                    int processors = Runtime.getRuntime().availableProcessors();
+                    String core_num = String.valueOf(processors);
+                    System.out.println("CPU cores: " + processors);
                     if (entry_file.equals("")) {
                         JOptionPane.showMessageDialog(null,"Entry file can not be empty");
                         return;
@@ -548,10 +568,28 @@ public class Navigation extends JFrame{
                     req.addParameter("archives", URLEncoder.encode(archives, "UTF-8"));
                     req.addParameter("app_params", URLEncoder.encode(app_params, "UTF-8"));
                     req.addParameter("name", URLEncoder.encode(name, "UTF-8"));
+                    req.addParameter("libs", URLEncoder.encode(libs, "UTF-8"));
 
-                    String res = req.execute();
-                    System.out.println(res);
-                    JOptionPane.showMessageDialog(frame,"Submit job successfully");
+
+                    // get message
+                    int price = 100;
+                    int reply = JOptionPane.showConfirmDialog(null, "The current price is " + price, "Confirm", JOptionPane.OK_CANCEL_OPTION);
+                    if (reply == JOptionPane.OK_OPTION) {
+                        String res = req.execute();
+                        System.out.println(res);
+                        JsonParser parser = new JsonParser();
+                        JsonElement jsonTree = parser.parse(res);
+                        JsonObject root = jsonTree.getAsJsonObject();
+                        JsonElement status = root.get("status");
+                        if (status.getAsString().equals("true")) {
+                            JOptionPane.showMessageDialog(frame,"Submit job successfully");
+                        } else {
+                            JOptionPane.showMessageDialog(frame,"Submit job failed");
+                        }
+                    }
+
+
+
 
 
 
@@ -586,6 +624,45 @@ public class Navigation extends JFrame{
             }
 
         });
+        btnGetContributionHistory.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                Connect.HttpGetAndParam req = new Connect.HttpGetAndParam(Connect.master_base_url + "/services/machine/history/");
+                String res = "";
+                try {
+                    res = req.execute();
+                    final JTable table = new JTable(new MachineTableModel());
+                    table.setEnabled(false);
+                    table.setDefaultEditor(Object.class, null);
+                    table.setDefaultRenderer(JButton.class, new ButtonRenderer());
+                    table.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            int column = table.getColumnModel().getColumnIndexAtX(e.getX());
+                            int row = e.getY()/table.getRowHeight();
+                            System.out.println("machine table mouse click row=" + row + " column=" + column);
+                            if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
+                                Object value = table.getValueAt(row, column);
+                                if (value instanceof JButton) {
+                                    ((JButton)value).doClick();
+                                }
+                            }
+                        }
+                    });
+                    MachineTableModel machineModel = (MachineTableModel) table.getModel();
+                    machineModel = parseRes(machineModel, res);
+                    table.setModel(machineModel);
+                    JOptionPane.showMessageDialog(frame, new JScrollPane(table));
+//                    switchPanels(machinePanel);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+        });
+
     }
 
     private void remove_machine(String id) {
@@ -610,39 +687,23 @@ public class Navigation extends JFrame{
             exception.printStackTrace();
         }
     }
-
-    private void refresh_machine_list() {
-        Connect.HttpGetAndParam req =
-                new Connect.HttpGetAndParam(Connect.master_base_url + "/services/machine/list/");
-
-        MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
-        machineModel.clearData();
-
-        String res = null;
-        try {
-            res = req.execute();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return;
-        }
-
-        System.out.println(res);
+    private MachineTableModel parseRes(MachineTableModel machineModel, String res) {
         JsonParser parser = new JsonParser();
         JsonElement jsonTree = parser.parse(res);
 
         if(jsonTree == null || !jsonTree.isJsonObject()) {
-            return;
+            return machineModel;
         }
 
         JsonObject root = jsonTree.getAsJsonObject();
         JsonElement result = root.get("result");
         if(result == null || !result.isJsonObject()) {
-            return;
+            return machineModel;
         }
         JsonObject resObj = result.getAsJsonObject();
         JsonElement mlistEle = resObj.get("machines");
         if(mlistEle == null || !mlistEle.isJsonArray()) {
-            return;
+            return machineModel;
         }
 
         JsonArray mlist = mlistEle.getAsJsonArray();
@@ -681,7 +742,48 @@ public class Navigation extends JFrame{
             }
 
         }
+        return machineModel;
+    }
+    private void refresh_machine_list() {
+        Connect.HttpGetAndParam req =
+                new Connect.HttpGetAndParam(Connect.master_base_url + "/services/machine/list/");
 
+        MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
+        machineModel.clearData();
+
+        String res = null;
+        try {
+            res = req.execute();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        System.out.println(res);
+
+        machineModel = parseRes(machineModel, res);
+        machineTable.setModel(machineModel);
+
+        return;
+    }
+    private void get_history_machine_list() {
+        Connect.HttpGetAndParam req =
+                new Connect.HttpGetAndParam(Connect.master_base_url + "/services/machine/history/");
+
+        MachineTableModel machineModel = (MachineTableModel) machineTable.getModel();
+        machineModel.clearData();
+
+        String res = null;
+        try {
+            res = req.execute();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        System.out.println(res);
+
+        machineModel = parseRes(machineModel, res);
         machineTable.setModel(machineModel);
 
         return;

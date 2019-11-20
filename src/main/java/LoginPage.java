@@ -55,11 +55,13 @@ public class LoginPage extends JFrame {
             public void actionPerformed(ActionEvent ae) {
                 String name = username.getText();
                 String pwd = password.getText();
+                Connect.HttpGetAndParam getCookie =
+                        new Connect.HttpGetAndParam(Connect.master_base_url + "/login/");
 
                 Connect.HttpPostAndParam postRequest =
                         new Connect.HttpPostAndParam(Connect.master_base_url + "/login/");
                 try {
-
+                    getCookie.execute();
                     // post to board
                     postRequest.addParameter("username", name);
                     postRequest.addParameter("password", pwd);
@@ -68,6 +70,7 @@ public class LoginPage extends JFrame {
                     postRequest.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
                     String postResponse = postRequest.execute();
                     if (postResponse.indexOf("Log") <= 0) {
+                        System.out.println("postResponse:" + postResponse);
                         Navigation regFace =new Navigation();
                         regFace.setVisible(true);
                         dispose();
