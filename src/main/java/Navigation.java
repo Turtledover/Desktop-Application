@@ -572,8 +572,25 @@ public class Navigation extends JFrame{
 
 
                     // get message
-                    int price = 100;
-                    int reply = JOptionPane.showConfirmDialog(null, "The current price is " + price, "Confirm", JOptionPane.OK_CANCEL_OPTION);
+                    String premium_rate = "100%";
+                    //Credit by Haozhe
+                    try {
+	                    Connect.HttpGetAndParam price_req =
+	                            new Connect.HttpGetAndParam(Connect.master_base_url + "/services/credit/get_price/");
+	                    String price_res = price_req.execute();
+	                    JsonParser parser = new JsonParser();
+	                    JsonElement jsonTree = parser.parse(price_res);
+	                    if(jsonTree.isJsonObject()) {
+	                        JsonObject jsonObject = jsonTree.getAsJsonObject();
+		                    System.out.println(jsonObject.get("premium_rate").toString());
+	                        premium_rate = jsonObject.get("premium_rate").toString();
+	                    }
+	                } catch (IOException ex) {
+	                    ex.printStackTrace();
+	                }
+                    
+                    //Credit by Haozhe
+                    int reply = JOptionPane.showConfirmDialog(null, "The current Premium Ratio is " + premium_rate, "Confirm", JOptionPane.OK_CANCEL_OPTION);
                     if (reply == JOptionPane.OK_OPTION) {
                         String res = req.execute();
                         System.out.println(res);
