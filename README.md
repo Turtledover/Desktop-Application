@@ -23,7 +23,7 @@ How too use: find the executable jar file in /out/artifacts/desk_app_jar/desk_ap
 
 * Then run `xhost + <YOUR_IP_ADDRESS>` to add your ip address to the access control list.
 
-* Launch the docker container through `~~docker run --rm -e DISPLAY=<YOUR_IP_ADDRESS>:0 -v /tmp/.X11-unix:/tmp/.X11-unix -it docker-test /bin/bash~~`.
+* Launch the docker container through `docker run --rm -e DISPLAY=<YOUR_IP_ADDRESS>:0 -p <PORT>:8042 -v /tmp/.X11-unix:/tmp/.X11-unix -it --network="distributedmarket_static-network" docker-test /bin/bash`.
 
 * Add the master server's ip address to `/etc/hosts` file through the command: `echo '<master_server_ip_address>\tmaster\n' >> /etc/hosts`.
 
