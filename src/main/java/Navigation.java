@@ -448,7 +448,6 @@ public class Navigation extends JFrame{
                             }
                             jobListTable.setModel(model_1);
                         }
-                        switchPanels(jobPanel);
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -464,6 +463,7 @@ public class Navigation extends JFrame{
                 TimerTask task = new ListJobTask();
                 jobTimer = new Timer();
                 jobTimer.schedule(task, 0,5000); // line 1
+                switchPanels(jobPanel);
             }
         });
         mntmJob.setBorder(new LineBorder(new Color(0, 0, 0)));
