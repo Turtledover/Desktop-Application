@@ -65,10 +65,13 @@ def cluster_setup():
     logging.info("Finish python env setup")
 
     rm_commands = [
+        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/')],
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
     ]
     for rm_command in rm_commands:
+        cmd = ' '.join(rm_command)
+        logging.info(cmd)
         subprocess.Popen(command, stdout=log, stderr=log).wait()
     logging.info("Finish remove the logs and old dataNode directory")
 
