@@ -162,9 +162,13 @@ def register_machine(core_num, memory_size, time_period, public_key, authorized_
     files = {
         'public_key': open('/root/.ssh/id_rsa.pub', 'r'),
     }
-    # TODO Get the real ip address (Docker version different from the real machine)
-    hostname = socket.gethostname()
-    ip_address = socket.gethostbyname(hostname)
+    # The way to get the ip address of the user machine is cited from https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+    # begin
+    my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    my_socket.connect(("8.8.8.8", 80))
+    ip_address = my_socket.getsockname()[0]
+    my_socket.close()
+    # end
     data = {
         'ip_address': ip_address,
         'core_num': core_num,
