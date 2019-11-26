@@ -1,2 +1,5 @@
 .idea/
-target/
+target/*
+!target/config.cfg
+!target/desk_app-1.0-SNAPSHOT.jar
+!target/desk_app-1.0-SNAPSHOT-jar-with-dependencies.jar
