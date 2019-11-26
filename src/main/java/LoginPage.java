@@ -8,6 +8,11 @@ import java.io.IOException;
 public class LoginPage extends JFrame {
 
     public static void main(String[] args) {
+        String master_url = System.getenv("DMARKET_MASTER");
+        if(master_url != null) {
+            Connect.master_base_url = master_url;
+        }
+
         LoginPage frameTabel = new LoginPage();
     }
 
@@ -53,6 +58,8 @@ public class LoginPage extends JFrame {
     public void actionlogin(){
         blogin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+                System.out.println("Master Url=" + Connect.master_base_url);
+
                 String name = username.getText();
                 String pwd = password.getText();
                 Connect.HttpGetAndParam getCookie =

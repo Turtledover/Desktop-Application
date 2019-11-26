@@ -36,6 +36,7 @@ final public class MachineLib {
 //            args.put("public-key", public_key);
             args.put("sessionid", Connect.getCookieByName("sessionid"));
             args.put("csrftoken", Connect.getCookieByName("csrftoken"));
+            args.put("master-url", Connect.master_base_url);
             StringBuilder script_args = new StringBuilder();
             for (String key : args.keySet()) {
                 script_args.append(" --" + key + " " + args.get(key));

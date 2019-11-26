@@ -26,7 +26,7 @@ import org.apache.http.util.EntityUtils;
 
 public class Connect {
     static Config cfg = new Config();
-    public static final String master_base_url = cfg.getProperty("master_base_url");
+    public static String master_base_url = cfg.getProperty("master_base_url");
 //    public static final String master_base_url = "http://10.0.197.2:8000";
     public static final String yahoo = "http://www.yahoo.co.jp";
     private static CookieStore cookie = new BasicCookieStore();

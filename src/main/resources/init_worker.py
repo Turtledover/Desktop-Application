@@ -6,13 +6,14 @@ import logging
 import tempfile
 import xml.etree.ElementTree as ET
 
-
+log = open("/root/log-add-worker.txt", "a")
 def basic_env_setup():
     """
     Install the required packages on the user machine
     :return:
     """
     commands = [
+        ['apt-get', 'clean'],
         ['apt-get', 'update'],
         ['apt-get', '-y', 'dist-upgrade'],
         ['apt-get', 'install', 'openjdk-8-jdk', 'openssh-server', 'openssh-client', 'python3-pip', 'zip', '-y'],
@@ -22,7 +23,7 @@ def basic_env_setup():
         ['pip3', 'install', 'psutil', 'requests'],
     ]
     for command in commands:
-        subprocess.Popen(command).wait()
+        subprocess.Popen(command, stdout=log, stderr=log).wait()
     logging.info("Finish basic_env_setup")
 
 
@@ -36,7 +37,7 @@ def cluster_setup():
         ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/spark', '/usr/local/spark'],
     ]
     for command in scp_commands:
-        subprocess.Popen(command).wait()
+        subprocess.Popen(command, stdout=log, stderr=log).wait()
 
     logging.info("Finish scp")
 
@@ -68,7 +69,7 @@ def cluster_setup():
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
     ]
     for rm_command in rm_commands:
-        subprocess.Popen(rm_command).wait()
+        subprocess.Popen(command, stdout=log, stderr=log).wait()
     logging.info("Finish remove the logs and old dataNode directory")
 
     with open('/root/.bashrc', 'a') as f:
@@ -111,7 +112,7 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
         ['yarn', '--daemon', 'start', 'nodemanager'],
     ]
     for command in hadoop_commands:
-        subprocess.Popen(command).wait()
+        subprocess.Popen(command, stdout=log, stderr=log).wait()
     logging.info("Finish the daemon launching")
     # end
 
@@ -121,11 +122,11 @@ def tensorflow_setup():
         ['pip3', 'install', 'tensorflow', 'tensorflowonspark==1.4.4'],
     ]
     for command in commands:
-        subprocess.Popen(command).wait()
+        subprocess.Popen(command, stdout=log, stderr=log).wait()
     logging.info("Finish the tensorflow setup")
 
 
-def register_machine(core_num, memory_size, time_period, public_key, authorized_key_path, sessionid, csrftoken):
+def register_machine(core_num, memory_size, time_period, public_key, authorized_key_path, sessionid, csrftoken, master):
     """
     Register the user machine on the existing cluster.
     :param core_num:
@@ -154,7 +155,7 @@ def register_machine(core_num, memory_size, time_period, public_key, authorized_
     # https://stackoverflow.com/questions/13567507/passing-csrftoken-with-python-requests
     # https://www.geeksforgeeks.org/display-hostname-ip-address-python/
     # begin
-    url = 'http://10.0.197.2:8000/services/machine/submit/'
+    url = master + '/services/machine/submit/' #'http://192.168.1.12:8000/services/machine/submit/'
     client = requests.session()
 #     tf = tempfile.TemporaryFile()
 #     tf.write(public_key.encode('utf-8')
@@ -201,12 +202,15 @@ if __name__ == '__main__':
                         required=True)
     parser.add_argument('--csrftoken', type=str, help='The csrf_token for the purpose of security.',
                         required=True)
+    parser.add_argument('--master-url', type=str, help='The url of master server',
+                            required=True)
     args = vars(parser.parse_args())
     logging.basicConfig(filename='init_worker.log', level=logging.INFO)
 
     basic_env_setup()
     register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', args['authorized_key_path'],
-                     args['sessionid'], args['csrftoken'])
+                     args['sessionid'], args['csrftoken'], args['master_url'])
     cluster_setup()
     config_yarn_resources(args['cpu_cores'], args['memory_size'])
     tensorflow_setup()
+    log.close()
