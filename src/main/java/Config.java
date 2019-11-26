@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.Properties;
 
@@ -8,8 +10,10 @@ public class Config
     {
         configFile = new java.util.Properties();
         try {
-            configFile.load(this.getClass().getClassLoader().
-                    getResourceAsStream("config.cfg"));
+            File jarPath=new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String propertiesPath=jarPath.getParentFile().getAbsolutePath();
+            System.out.println(" propertiesPath-"+propertiesPath);
+            configFile.load(new FileInputStream(propertiesPath+"/config.cfg"));
         }catch(Exception eta){
             eta.printStackTrace();
         }
