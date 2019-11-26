@@ -73,7 +73,7 @@ def cluster_setup():
         cmd = ' '.join(rm_command)
         logging.info(cmd)
         subprocess.Popen(command, stdout=log, stderr=log).wait()
-    logging.info("Finish remove the logs and old dataNode directory")
+    logging.info("Finish remove the logs, old dataNode and namenode directory")
 
     with open('/root/.bashrc', 'a') as f:
         for key in envs:
