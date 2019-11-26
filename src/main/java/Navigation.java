@@ -701,6 +701,12 @@ public class Navigation extends JFrame{
             req.setHeader("X-CSRFToken", Connect.getCookieByName("csrftoken"));
             String result = req.execute();
             System.out.print(result);
+            Process rm_hadoop = Runtime.getRuntime().exec("rm -rf /usr/local/hadoop");
+            int rm_hadoop_exitcode = rm_hadoop.waitFor();
+            System.out.println("Remove the /usr/local/hadoop exit with " + rm_hadoop_exitcode);
+            Process rm_spark = Runtime.getRuntime().exec("rm -rf /usr/local/spark");
+            int rm_spark_exitcode = rm_spark.waitFor();
+            System.out.println("Remove the /usr/local/spark exit with " + rm_spark_exitcode);
         } catch (Exception exception) {
             exception.printStackTrace();
         }
