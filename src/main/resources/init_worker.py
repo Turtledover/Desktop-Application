@@ -65,7 +65,6 @@ def cluster_setup():
     logging.info("Finish python env setup")
 
     rm_commands = [
-        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/')],
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
     ]
