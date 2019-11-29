@@ -4,6 +4,7 @@ import subprocess
 import argparse
 import logging
 import tempfile
+import shutil
 import xml.etree.ElementTree as ET
 
 log_stdout = open("/root/stdout-add-worker.txt", "a")
@@ -65,17 +66,22 @@ def cluster_setup():
     envs['CLASSPATH'] = os.environ['CLASSPATH']
     logging.info("Finish python env setup")
 
-    rm_commands = [
-        ['rm', '-rf', '/hadooptmp/'],
-        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/')],
-        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
-        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
-        ['ls', os.path.join(os.environ['HADOOP_HOME'], 'data')],
-    ]
-    for rm_command in rm_commands:
-        cmd = ' '.join(rm_command)
-        logging.info(cmd)
-        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
+#     rm_commands = [
+#         ['rm', '-rf', '/hadooptmp/'],
+#         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/')],
+#         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
+#         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
+#         ['ls', os.path.join(os.environ['HADOOP_HOME'], 'data')],
+#     ]
+#     for rm_command in rm_commands:
+#         cmd = ' '.join(rm_command)
+#         logging.info(cmd)
+#         subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
+
+    shutil.rmtree(os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/'), True)
+    shutil.rmtree(os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/'), True)
+    shutil.rmtree(os.path.join(os.environ['HADOOP_HOME'], 'logs'), True)
+
     logging.info("Finish remove the logs, old dataNode and namenode directory")
 
     with open('/root/.bashrc', 'a') as f:
@@ -223,4 +229,5 @@ if __name__ == '__main__':
     cluster_setup()
     config_yarn_resources(args['cpu_cores'], args['memory_size'])
     tensorflow_setup()
-    log.close()
+    log_stdout.close()
+    log_stderr.close()
