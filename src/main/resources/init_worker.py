@@ -65,8 +65,11 @@ def cluster_setup():
     logging.info("Finish python env setup")
 
     rm_commands = [
+        ['rm', '-rf', '/hadooptmp/'],
+        ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/')],
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
+        ['ls', os.path.join(os.environ['HADOOP_HOME'], 'data')],
     ]
     for rm_command in rm_commands:
         cmd = ' '.join(rm_command)
@@ -110,8 +113,8 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
     yarn_config.write(yarn_config_path)
     logging.info("Finish the yarn config setup")
     hadoop_commands = [
-        ['hdfs', '--daemon', 'start', 'datanode'],
         ['yarn', '--daemon', 'start', 'nodemanager'],
+        ['hdfs', '--daemon', 'start', 'datanode'],
     ]
     for command in hadoop_commands:
         subprocess.Popen(command, stdout=log, stderr=log).wait()
