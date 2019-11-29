@@ -6,7 +6,8 @@ import logging
 import tempfile
 import xml.etree.ElementTree as ET
 
-log = open("/root/log-add-worker.txt", "a")
+log_stdout = open("/root/stdout-add-worker.txt", "a")
+log_stderr = open("/root/stderr-add-worker.txt", "a")
 def basic_env_setup():
     """
     Install the required packages on the user machine
@@ -23,7 +24,7 @@ def basic_env_setup():
         ['pip3', 'install', 'psutil', 'requests'],
     ]
     for command in commands:
-        subprocess.Popen(command, stdout=log, stderr=log).wait()
+        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
     logging.info("Finish basic_env_setup")
 
 
@@ -37,7 +38,7 @@ def cluster_setup():
         ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/spark', '/usr/local/spark'],
     ]
     for command in scp_commands:
-        subprocess.Popen(command, stdout=log, stderr=log).wait()
+        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
 
     logging.info("Finish scp")
 
@@ -74,7 +75,7 @@ def cluster_setup():
     for rm_command in rm_commands:
         cmd = ' '.join(rm_command)
         logging.info(cmd)
-        subprocess.Popen(command, stdout=log, stderr=log).wait()
+        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
     logging.info("Finish remove the logs, old dataNode and namenode directory")
 
     with open('/root/.bashrc', 'a') as f:
@@ -117,7 +118,7 @@ def config_yarn_resources(cpu_cores_limit, memory_limit):
         ['hdfs', '--daemon', 'start', 'datanode'],
     ]
     for command in hadoop_commands:
-        subprocess.Popen(command, stdout=log, stderr=log).wait()
+        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
     logging.info("Finish the daemon launching")
     # end
 
@@ -127,7 +128,7 @@ def tensorflow_setup():
         ['pip3', 'install', 'tensorflow', 'tensorflowonspark==1.4.4'],
     ]
     for command in commands:
-        subprocess.Popen(command, stdout=log, stderr=log).wait()
+        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
     logging.info("Finish the tensorflow setup")
 
 
