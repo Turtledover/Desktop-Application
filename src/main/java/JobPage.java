@@ -307,12 +307,13 @@ public class JobPage {
                     archivePathTextField.setText("");
                     nameTextField.setText("");
                     appParamTextField.setText("");
-                    if (archives.equals("")) {
-                        archives = "hdfs:///user/root/mnist/input/data/mnist.zip#mnist";
-                    }
-                    if (app_params.equals("")) {
-                        app_params = "--output mnist/output --format csv";
-                    }
+                    libsTextField.setText("");
+//                    if (archives.equals("")) {
+//                        archives = "hdfs:///user/root/mnist/input/data/mnist.zip#mnist";
+//                    }
+//                    if (app_params.equals("")) {
+//                        app_params = "--output mnist/output --format csv";
+//                    }
                     if (name.equals("")) {
                         name = "Default Name";
                     }
@@ -361,11 +362,6 @@ public class JobPage {
                             JOptionPane.showMessageDialog(null,"Submit job failed");
                         }
                     }
-
-
-
-
-
 
                 } catch (IOException ex) {
                     ex.printStackTrace();
