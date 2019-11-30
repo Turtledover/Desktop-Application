@@ -79,25 +79,55 @@ public class JobPage {
                                 // create a JTextArea
                                 JTextArea textArea = new JTextArea(16, 30);
                                 JsonParser parser = new JsonParser();
-                                JsonElement jsonTree = parser.parse(res);
+                        		JsonElement jsonTree = parser.parse(res);
+                                JsonObject jsonObject = jsonTree.getAsJsonObject();
+                        		JsonElement result = jsonObject.get("result");
+                        		JsonElement logs = result.getAsJsonObject().get("logs");
+                        		JsonElement executors = logs.getAsJsonArray().get(0).getAsJsonObject().get("executors");
 
-                                if(jsonTree.isJsonObject()) {
-
-                                    JsonObject jsonObject = jsonTree.getAsJsonObject();
-                                    JsonElement elem = jsonObject.get("result");
-                                    res = elem.toString();
-                                    if(elem.isJsonObject()){
-                                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-
-                                        res = gson.toJson(elem.getAsJsonObject().get("logs")); // done
-                                    }
-                                }
-                                textArea.setText(res);
-                                textArea.setEditable(false);
+                        		Container cont = new Container();                        		
+                        		int rows = executors.getAsJsonArray().size();
+                        		cont.setLayout(new GridLayout(1, rows, 0, 0));
+                        		for(int i = 0; i < rows; i++) {
+                        			JsonElement executor = executors.getAsJsonArray().get(i);
+                        			String isDriver = executor.getAsJsonObject().get("isDriver").toString();
+                        			String stdout = executor.getAsJsonObject().get("stdout").toString();
+                        			String stderr = executor.getAsJsonObject().get("stderr").toString();
+                        			Container innercont = new Container();
+                        			BoxLayout layout = new BoxLayout(innercont, BoxLayout.Y_AXIS); 
+                        			innercont.setLayout(layout);			
+                        			
+                        			JTextArea isDriverText = new JTextArea(2, 30);
+                        			isDriverText.setLineWrap(true);
+                        			isDriverText.setWrapStyleWord(true); 
+                        			isDriverText.setEditable(false);
+                        			isDriverText.setText(isDriver);
+                        			innercont.add(isDriverText);
+                        			
+                        			JTextArea stdoutText = new JTextArea(30, 30);
+                        			stdoutText.setLineWrap(true);
+                        			stdoutText.setWrapStyleWord(true); 
+                        			stdoutText.setEditable(false);
+                        			stdoutText.setText(stdout);
+                        			innercont.add(stdoutText);
+                        			
+                        			JTextArea stderrText = new JTextArea(30, 30);
+                        			stderrText.setLineWrap(true);
+                        			stderrText.setWrapStyleWord(true); 
+                        			stderrText.setEditable(false);
+                        			stderrText.setText(stderr);
+                        			innercont.add(stderrText);
+                        	
+                        			cont.add(innercont);
+                        		}
+                                
 
                                 // wrap a scrollpane around it
                                 JScrollPane scrollPane = new JScrollPane(textArea);
+                        		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                        		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                        		
+                        		scrollPane.getViewport().setView(cont);
 
                                 // display them in a message dialog
                                 JOptionPane.showMessageDialog(null, scrollPane);
