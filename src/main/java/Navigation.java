@@ -110,7 +110,8 @@ public class Navigation extends JFrame{
                 if(jobTimer != null) {
                     return;
                 }
-                TimerTask task = jobPage.listJobTask;
+                //TimerTask task = jobPage.listJobTask;
+                TimerTask task = jobPage.new ListJobTask();
                 jobTimer = new Timer();
                 jobTimer.schedule(task, 0,5000); // line 1
                 switchPanels(jobPanel);
