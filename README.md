@@ -23,13 +23,19 @@ How too use: find the executable jar file in /out/artifacts/desk_app_jar/desk_ap
 
 * Then run `xhost + <YOUR_IP_ADDRESS>` to add your ip address to the access control list.
 
+* Before launching the container, make sure that the central server is running.
+
 * Launch the docker container through `docker run --rm -e DISPLAY=<YOUR_IP_ADDRESS>:0 -p <PORT>:8042 -v /tmp/.X11-unix:/tmp/.X11-unix -it --network="distributedmarket_static-network" docker-test /bin/bash`.
 
 * Add the master server's ip address to `/etc/hosts` file through the command: `echo '<master_server_ip_address>\tmaster\n' >> /etc/hosts`.
 
+* Get the container id of this newly-launched container through the command `docker ps`.
+
+* Add the current docker container to the docker network of the existing cluster through the command: `docker network connect distributedmarket_static-network <container_id>`.
+
 * Run `./run.sh` in the container.
 
-* Then you can manipulate the GUI app in docker! Notice that before using this app, you must add the current docker container to the docker network of the existing cluster.
+* Then you can manipulate the GUI app in docker!
 
   > For any question, first check the first link in the reference section.
 
