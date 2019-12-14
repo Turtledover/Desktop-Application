@@ -1,7 +1,21 @@
 # Desktop-Application
 Desktop Application for users to connect to Distributed Marketplace
 
-How too use: find the executable jar file in /out/artifacts/desk_app_jar/desk_app.jar
+# Compile & Run in IntelliJ
+This project uses Maven as project management tools.
+
+Compile in intelliJ
+1. Open this directory as a project in IntelliJ
+2. In Preferences -> Build, Execution, Deployment -> Build Tools -> Maven -> Runner,
+   enable the "Delegate IDE build/run actions to Maven".
+3. Click "Build". A jar file named "desk_app-...-with-dependencies.jar" could be find in ./target folder. 
+   This is the jar that could be run.
+
+Run in intelliJ
+1. Click Run -> Run..., then "Edit Configuration"
+2. Click + and add a Java Application
+3. Under Configuration -> Path to JAR, choose the jar path from the target folder.
+4. Apply and Run.
 
 # Approaches to run the GUI app in Docker (for Mac users):
 
@@ -33,10 +47,24 @@ How too use: find the executable jar file in /out/artifacts/desk_app_jar/desk_ap
 
   > For any question, first check the first link in the reference section.
 
-
 ## Reference 
 
 * https://sourabhbajaj.com/blog/2017/02/07/gui-applications-docker-mac/
+
+# Use the app in real machines
+Current supported OS: Ubuntu 18
+Require Java 8
+
+Run
+1. Edit "/etc/hosts", add central server entry ([ip address]  master).
+2. Clone this repo in the machine.
+3. Run `cd target`
+4. Run `java -jar desk_app-1.0-SNAPSHOT-jar-with-dependencies.jar`
+5. You should see a interface for you to register and login.
+
+Reset
+1. Run the `reset.sh` in this folder
+2. Remove any additional entries in "/etc/hosts" file
 
 # How to add machines in the app
 1. Register and login to the app
