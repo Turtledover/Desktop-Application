@@ -1,5 +1,7 @@
 # Desktop-Application
-Desktop Application for users to connect to Distributed Marketplace
+Desktop Application for users to connect to Distributed Marketplace.
+Setup of the distributed marketplace could be found at https://github.com/Turtledover/DistributedMarket
+You have to setup the server first before using this client application.
 
 # Compile & Run in IntelliJ
 This project uses Maven as project management tools.
