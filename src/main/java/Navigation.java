@@ -112,8 +112,13 @@ public class Navigation extends JFrame{
                 }
                 //TimerTask task = jobPage.listJobTask;
                 TimerTask task = jobPage.new ListJobTask();
-                jobTimer = new Timer();
-                jobTimer.schedule(task, 0,5000); // line 1
+                try {
+                    jobTimer = new Timer();
+                    jobTimer.schedule(task, 0,5000); // line 1
+                } catch (Exception exception) {
+
+                }
+
                 switchPanels(jobPanel);
             }
         });
