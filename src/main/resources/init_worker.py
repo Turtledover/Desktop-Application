@@ -15,14 +15,13 @@ def basic_env_setup():
     :return:
     """
     commands = [
-        ['apt-get', 'clean'],
-        ['apt-get', 'update'],
-        ['apt-get', '-y', 'dist-upgrade'],
-        ['apt-get', 'install', 'openjdk-8-jdk', 'openssh-server', 'openssh-client', 'python3-pip', 'zip', '-y'],
-        # TODO Check if keys have already existed:
+        # ['apt-get', 'update'],
+        # ['apt-get', '-y', 'dist-upgrade'],
+        # ['apt-get', 'install', 'openjdk-8-jdk', 'openssh-server', 'openssh-client', 'python3-pip', 'zip', '-y'],
+        # # TODO Check if keys have already existed:
         ['ssh-keygen', '-t', 'rsa', '-N', '', '-f', '/root/.ssh/id_rsa'],
         ['service', 'ssh', 'start'],
-        ['pip3', 'install', 'psutil', 'requests'],
+        # ['pip3', 'install', 'psutil', 'requests'],
     ]
     for command in commands:
         subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
@@ -34,12 +33,13 @@ def cluster_setup():
     Set up the environment variables required for the cluster including Hadoop, Spark, Yarn, Tensorflow, and TensorflowOnSpark
     :return:
     """
-    scp_commands = [
-        ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/hadoop', '/usr/local/hadoop'],
-        ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/spark', '/usr/local/spark'],
-    ]
-    for command in scp_commands:
-        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
+    if not os.path.exists('/usr/local/hadoop'):
+        scp_commands = [
+            ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/hadoop', '/usr/local/hadoop'],
+            ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/spark', '/usr/local/spark'],
+        ]
+        for command in scp_commands:
+            subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
 
     logging.info("Finish scp")
 
@@ -205,9 +205,14 @@ def register_machine(core_num, memory_size, time_period, public_key, authorized_
     # end
     # end
 
+def only_join_cluster():
+    basic_env_setup()
+    cluster_setup()
+    tensorflow_setup()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Initialize the worker server.')
+    parser.add_argument('--only-join-cluster', type=int, help='only join cluster or not', default=0)
     parser.add_argument('--authorized-key-path', type=str, help='The path to the authorized keys path.', default='/root/.ssh/authorized_keys')
     parser.add_argument('--cpu-cores', type=int, help='The number of cpu cores to be contributed to the cluster.',
                         required=True)
@@ -223,11 +228,26 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     logging.basicConfig(filename='init_worker.log', level=logging.INFO)
 
-    basic_env_setup()
-    register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', args['authorized_key_path'],
-                     args['sessionid'], args['csrftoken'], args['master_url'])
-    cluster_setup()
-    config_yarn_resources(args['cpu_cores'], args['memory_size'])
-    tensorflow_setup()
-    log_stdout.close()
-    log_stderr.close()
+    if args["only_join_cluster"]:
+        only_join_cluster()
+        logging.info('only_join_cluster')
+    else:
+        import time
+        start_time = time.time()
+        basic_env_setup()
+        logging.info('basic_env_setup--- {} seconds ---'.format(time.time() - start_time))
+        start_time = time.time()
+        register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', args['authorized_key_path'],
+                         args['sessionid'], args['csrftoken'], args['master_url'])
+        logging.info('register_machine--- {} seconds ---'.format(time.time() - start_time))
+        start_time = time.time()
+        cluster_setup()
+        logging.info('cluster_setup--- {} seconds ---'.format(time.time() - start_time))
+
+        start_time = time.time()
+        config_yarn_resources(args['cpu_cores'], args['memory_size'])
+        logging.info('config_yarn_resources--- {} seconds ---'.format(time.time() - start_time))
+
+        tensorflow_setup()
+        log_stdout.close()
+        log_stderr.close()

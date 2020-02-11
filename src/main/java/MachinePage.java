@@ -164,14 +164,10 @@ public class MachinePage {
                     table.setModel(machineModel);
                     JOptionPane.showMessageDialog(null, new JScrollPane(table));
 //                    switchPanels(machinePanel);
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
             }
-
         });
     }
     private void remove_machine(String id) {
