@@ -12,8 +12,6 @@ COPY ./run.sh /util/run.sh
 COPY ./config.cfg /util/config.cfg
 
 COPY ./src/main/resources/init_worker.py /util/init_worker.py
-COPY ./src/main/resources/machine.txt /util/machine.txt
-COPY ./src/main/resources/auto_add_or_remove_machine.py /util/auto_add_or_remove_machine.py
 
 RUN chmod +x /util/run.sh
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
