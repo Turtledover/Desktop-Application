@@ -138,7 +138,7 @@ def tensorflow_setup():
     logging.info("Finish the tensorflow setup")
 
 
-def register_machine(core_num, memory_size, time_period, public_key, authorized_key_path, sessionid, csrftoken, master):
+def register_machine(core_num, memory_size, time_period, public_key, authorized_key_path, sessionid, csrftoken, master, start_time, end_time):
     """
     Register the user machine on the existing cluster.
     :param core_num:
@@ -187,6 +187,8 @@ def register_machine(core_num, memory_size, time_period, public_key, authorized_
         'memory_size': memory_size,
         'time_period': time_period,
         'csrfmiddlewaretoken': csrftoken,
+        'start_time': start_time,
+        'end_time': end_time,
     }
     cookies = requests.cookies.RequestsCookieJar()
     cookies.set('sessionid', sessionid)
@@ -218,6 +220,10 @@ if __name__ == '__main__':
                         required=True)
     parser.add_argument('--memory-size', type=int, help='The memory size to be contributed to the cluster.',
                         required=True)
+    parser.add_argument('--start-time', type=str, help='The start time for machine to be contributed to the cluster.',
+                        required=True)
+    parser.add_argument('--end-time', type=str, help='The end time for machine to be contributed to the cluster.',
+                        required=True)
 #     parser.add_argument('--public-key', type=str, help='The public key of the user machine.')
     parser.add_argument('--sessionid', type=str, help='The id of the current user session.',
                         required=True)
@@ -238,7 +244,7 @@ if __name__ == '__main__':
         logging.info('basic_env_setup--- {} seconds ---'.format(time.time() - start_time))
         start_time = time.time()
         register_machine(args['cpu_cores'], args['memory_size'], 10, '/root/.ssh/id_rsa.pub', args['authorized_key_path'],
-                         args['sessionid'], args['csrftoken'], args['master_url'])
+                         args['sessionid'], args['csrftoken'], args['master_url'], args['start_time'], args['end_time'])
         logging.info('register_machine--- {} seconds ---'.format(time.time() - start_time))
         start_time = time.time()
         cluster_setup()

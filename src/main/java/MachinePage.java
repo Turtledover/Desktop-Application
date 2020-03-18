@@ -21,6 +21,8 @@ public class MachinePage {
     public JTextField memoryTextField;
     public JButton btnRemoveMachine;
     public JTextField authorizedKeyPathTextField;
+    public JTextField startTimeTextField;
+    public JTextField EndTimeTextField;
     public JTextArea sshPublicKeyTextArea;
 
     public MachinePage() {
@@ -46,7 +48,7 @@ public class MachinePage {
 //        panel.add(btnRemoveMachine);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(93, 53, 392, 154);
+        scrollPane.setBounds(93, 53, 392, 100);
         machinePanel.add(scrollPane);
 
         machineTable = new JTable(new MachineTableModel());
@@ -72,6 +74,36 @@ public class MachinePage {
 
         scrollPane.setViewportView(machineTable);
 
+        JLabel startTimeLabel = new JLabel("Start time");
+        startTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        startTimeLabel.setBounds(90, 164, 161, 29);
+        machinePanel.add(startTimeLabel);
+
+        startTimeTextField = new JTextField();
+        startTimeTextField.setColumns(10);
+        startTimeTextField.setBounds(286, 164, 130, 26);
+        machinePanel.add(startTimeTextField);
+
+        JLabel EndTimeLabel = new JLabel("End time");
+        EndTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        EndTimeLabel.setBounds(90, 192, 161, 29);
+        machinePanel.add(EndTimeLabel);
+
+        EndTimeTextField = new JTextField();
+        EndTimeTextField.setColumns(10);
+        EndTimeTextField.setBounds(286, 192, 130, 26);
+        machinePanel.add(EndTimeTextField);
+
+        JLabel authorizedKeyPathLabel = new JLabel("Authorized key path");
+        authorizedKeyPathLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        authorizedKeyPathLabel.setBounds(90, 219, 161, 29);
+        machinePanel.add(authorizedKeyPathLabel);
+
+        authorizedKeyPathTextField = new JTextField();
+        authorizedKeyPathTextField.setColumns(10);
+        authorizedKeyPathTextField.setBounds(286, 220, 130, 26);
+        machinePanel.add(authorizedKeyPathTextField);
+
         JLabel coreNumLabel = new JLabel("Core num");
         coreNumLabel.setHorizontalAlignment(SwingConstants.CENTER);
         coreNumLabel.setBounds(93, 248, 158, 29);
@@ -92,15 +124,7 @@ public class MachinePage {
         memoryTextField.setBounds(286, 281, 130, 26);
         machinePanel.add(memoryTextField);
 
-        JLabel authorizedKeyPathLabel = new JLabel("Authorized key path");
-        authorizedKeyPathLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        authorizedKeyPathLabel.setBounds(90, 219, 161, 29);
-        machinePanel.add(authorizedKeyPathLabel);
 
-        authorizedKeyPathTextField = new JTextField();
-        authorizedKeyPathTextField.setColumns(10);
-        authorizedKeyPathTextField.setBounds(286, 220, 130, 26);
-        machinePanel.add(authorizedKeyPathTextField);
 
         JLabel sshPublicKeyLabel = new JLabel("SSH Public Key");
         sshPublicKeyLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -120,8 +144,10 @@ public class MachinePage {
                 String cpu_cores = coreNumtextField.getText();
                 String memory_size = memoryTextField.getText();
                 String public_key = sshPublicKeyTextArea.getText();
+                String start_time = startTimeTextField.getText();
+                String end_time = EndTimeTextField.getText();
                 // [TBD] Add the error handling of the input here.
-                boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key);
+                boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key, start_time, end_time);
 
                 if(success) {
                     JOptionPane.showMessageDialog(null,"Success!");
