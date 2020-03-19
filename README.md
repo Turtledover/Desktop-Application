@@ -72,6 +72,8 @@ Reset
 1. Register and login to the app
 2. Go to machines page, fill in the parameters. Sample:
    * Authorized key path - /root/.ssh/authorized_keys
+   * Start time - 08:01:22
+   * End time - 23:59:59
    * Core num - 4
    * Memory - 4096 (in Megabytes)
    * SSH Public Key - (Can keep this empty)
