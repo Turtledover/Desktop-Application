@@ -24,6 +24,7 @@ public class MachinePage {
     public JTextField startTimeTextField;
     public JTextField EndTimeTextField;
     public JTextArea sshPublicKeyTextArea;
+    public JCheckBox enable_machine_interval;
 
     public MachinePage() {
         machinePanel = new JPanel();
@@ -48,7 +49,7 @@ public class MachinePage {
 //        panel.add(btnRemoveMachine);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(93, 53, 392, 100);
+        scrollPane.setBounds(93, 53, 392, 70);
         machinePanel.add(scrollPane);
 
         machineTable = new JTable(new MachineTableModel());
@@ -73,6 +74,12 @@ public class MachinePage {
 
 
         scrollPane.setViewportView(machineTable);
+
+        enable_machine_interval = new JCheckBox("Enable machine interval", true);
+        enable_machine_interval.setHorizontalAlignment(SwingConstants.CENTER);
+        enable_machine_interval.setBounds(90, 136, 161, 29);
+        machinePanel.add(enable_machine_interval);
+
 
         JLabel startTimeLabel = new JLabel("Start time");
         startTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -146,8 +153,9 @@ public class MachinePage {
                 String public_key = sshPublicKeyTextArea.getText();
                 String start_time = startTimeTextField.getText();
                 String end_time = EndTimeTextField.getText();
+                boolean enable_MI = enable_machine_interval.isSelected();
                 // [TBD] Add the error handling of the input here.
-                boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key, start_time, end_time);
+                boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key, start_time, end_time, enable_MI);
 
                 if(success) {
                     JOptionPane.showMessageDialog(null,"Success!");

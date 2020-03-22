@@ -221,9 +221,9 @@ if __name__ == '__main__':
     parser.add_argument('--memory-size', type=int, help='The memory size to be contributed to the cluster.',
                         required=True)
     parser.add_argument('--start-time', type=str, help='The start time for machine to be contributed to the cluster.',
-                        required=True)
+                        required=False, default='')
     parser.add_argument('--end-time', type=str, help='The end time for machine to be contributed to the cluster.',
-                        required=True)
+                        required=False, default='')
 #     parser.add_argument('--public-key', type=str, help='The public key of the user machine.')
     parser.add_argument('--sessionid', type=str, help='The id of the current user session.',
                         required=True)

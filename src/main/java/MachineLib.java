@@ -21,7 +21,7 @@ final public class MachineLib {
         }
     }
 
-    public static boolean initWorker(String authorized_key_path, String cpu_share, String memory_share, String public_key, String start_time, String end_time) {
+    public static boolean initWorker(String authorized_key_path, String cpu_share, String memory_share, String public_key, String start_time, String end_time, boolean enable_machine_interval) {
         try {
             InputStream ins = MachineLib.class.getResourceAsStream("init_worker.py");
             String tempPath = copyToTemp(ins);
@@ -36,8 +36,11 @@ final public class MachineLib {
             args.put("authorized-key-path", authorized_key_path);
             args.put("cpu-cores", cpu_share);
             args.put("memory-size", memory_share);
-            args.put("start-time", start_time);
-            args.put("end-time", end_time);
+            if (enable_machine_interval) {
+                args.put("start-time", start_time);
+                args.put("end-time", end_time);
+            }
+
 //            args.put("public-key", public_key);
             args.put("sessionid", Connect.getCookieByName("sessionid"));
             args.put("csrftoken", Connect.getCookieByName("csrftoken"));
