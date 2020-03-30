@@ -156,7 +156,19 @@ public class MachinePage {
                 boolean enable_MI = enable_machine_interval.isSelected();
                 // [TBD] Add the error handling of the input here.
                 boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key, start_time, end_time, enable_MI);
-
+                if (enable_MI) {
+                    // Stop the HDFS datanode and the YARN nodemanager
+                    try {
+                        Process yarn = Runtime.getRuntime().exec("/usr/local/hadoop/bin/yarn --daemon stop nodemanager");
+                        int yarn_exitcode = yarn.waitFor();
+                        System.out.println("YARN stop nodemanager exit with " + yarn_exitcode);
+                        Process hdfs = Runtime.getRuntime().exec("/usr/local/hadoop/bin/hdfs --daemon stop datanode");
+                        int hdfs_exitcode = hdfs.waitFor();
+                        System.out.println("HDFS stop datanode exit with " + hdfs_exitcode);
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
                 if(success) {
                     JOptionPane.showMessageDialog(null,"Success!");
                     refresh_machine_list();

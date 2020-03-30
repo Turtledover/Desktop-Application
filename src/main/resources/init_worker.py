@@ -33,13 +33,12 @@ def cluster_setup():
     Set up the environment variables required for the cluster including Hadoop, Spark, Yarn, Tensorflow, and TensorflowOnSpark
     :return:
     """
-    if not os.path.exists('/usr/local/hadoop'):
-        scp_commands = [
-            ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/hadoop', '/usr/local/hadoop'],
-            ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/spark', '/usr/local/spark'],
-        ]
-        for command in scp_commands:
-            subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
+    scp_commands = [
+        ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/hadoop', '/usr/local/hadoop'],
+        ['scp', '-o', 'StrictHostKeyChecking=no', '-r', 'master:/usr/local/spark', '/usr/local/spark'],
+    ]
+    for command in scp_commands:
+        subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
 
     logging.info("Finish scp")
 
@@ -66,17 +65,6 @@ def cluster_setup():
     envs['CLASSPATH'] = os.environ['CLASSPATH']
     logging.info("Finish python env setup")
 
-#     rm_commands = [
-#         ['rm', '-rf', '/hadooptmp/'],
-#         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/')],
-#         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/')],
-#         ['rm', '-rf', os.path.join(os.environ['HADOOP_HOME'], 'logs')],
-#         ['ls', os.path.join(os.environ['HADOOP_HOME'], 'data')],
-#     ]
-#     for rm_command in rm_commands:
-#         cmd = ' '.join(rm_command)
-#         logging.info(cmd)
-#         subprocess.Popen(command, stdout=log_stdout, stderr=log_stderr).wait()
 
     shutil.rmtree(os.path.join(os.environ['HADOOP_HOME'], 'data/nameNode/'), True)
     shutil.rmtree(os.path.join(os.environ['HADOOP_HOME'], 'data/dataNode/'), True)
