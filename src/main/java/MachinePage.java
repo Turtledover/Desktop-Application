@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 public class MachinePage {
     public  JPanel machinePanel;
@@ -154,6 +155,29 @@ public class MachinePage {
                 String start_time = startTimeTextField.getText();
                 String end_time = EndTimeTextField.getText();
                 boolean enable_MI = enable_machine_interval.isSelected();
+                if (cpu_cores.equals("")) {
+                    JOptionPane.showMessageDialog(null,"core number should not be empty");
+                    return;
+                }
+                if (memory_size.equals("")) {
+                    JOptionPane.showMessageDialog(null,"memory size should not be empty");
+                    return;
+                }
+                if (authorized_key_path.equals("")) {
+                    JOptionPane.showMessageDialog(null,"authorized key path should not be empty");
+                    return;
+                }
+                if (enable_MI) {
+                    if (start_time.equals("") || end_time.equals("")) {
+                        JOptionPane.showMessageDialog(null,"start time and end time can not be empty if machine interval is enabled");
+                        return;
+                    }
+                    String pattern = "([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]";
+                    if ( !Pattern.compile(pattern).matcher(start_time).matches() || !Pattern.compile(pattern).matcher(start_time).matches()) {
+                        JOptionPane.showMessageDialog(null,"start time and end time should have format HH:MM:SS. like 23:59:59");
+                        return;
+                    }
+                }
                 // [TBD] Add the error handling of the input here.
                 boolean success = MachineLib.initWorker(authorized_key_path, cpu_cores, memory_size, public_key, start_time, end_time, enable_MI);
                 if (enable_MI) {
