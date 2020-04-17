@@ -168,6 +168,14 @@ public class Navigation extends JFrame{
         // Click Log Out button
         profilePage.btnLogou.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
+                try {
+                    Connect.HttpGetAndParam req =
+                            new Connect.HttpGetAndParam(Connect.master_base_url + "/logout/");
+                    String result = req.execute();
+                    System.out.print(result);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 LoginPage regFace = new LoginPage();
                 regFace.setVisible(true);
                 dispose();
