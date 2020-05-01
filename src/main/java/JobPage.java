@@ -35,173 +35,174 @@ public class JobPage {
     class ListJobTask extends TimerTask {
         @Override
         public void run() {
-            try{
-                Connect.HttpGetAndParam req =
-                        new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/list/");
-                String res = req.execute();
-                System.out.println(res);
-                JsonParser parser = new JsonParser();
-                JsonElement jsonTree = parser.parse(res);
-                if(jsonTree.isJsonObject()) {
-
-                    JsonObject jsonObject = jsonTree.getAsJsonObject();
-                    JsonElement elem = jsonObject.get("result");
-                    if(elem.isJsonObject()){
-                        JsonObject jo= elem.getAsJsonObject();
-
-                        JsonArray jsonArr = jo.getAsJsonArray("jobs");
-                        Gson googleJson = new Gson();
-                        ArrayList jsonObjList = googleJson.fromJson(jsonArr, ArrayList.class);
-
-
-
-                        scrollPane_1.remove(jobListTable);
-
-                        jobListTable = new JTable();
-
-                        final JPopupMenu popupMenu = new JPopupMenu();
-                        JMenuItem getLogItem = new JMenuItem("Get log");
-                        getLogItem.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                int row = jobListTable.getSelectedRow();
-                                String jobId = jobListTable.getModel().getValueAt(row, 0).toString();
-                                Connect.HttpGetAndParam req =
-                                        new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/get_log/");
-                                req.addParameter("job_id", String.valueOf(Integer.parseInt(jobId)));
-                                String res = "";
-                                try {
-                                    res = req.execute();
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                                System.out.println(res);
-                                // create a JTextArea
-                                JTextArea textArea = new JTextArea(16, 30);
-                                JsonParser parser = new JsonParser();
-                        		JsonElement jsonTree = parser.parse(res);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Connect.HttpGetAndParam req =
+                                    new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/list/");
+                            String res = req.execute();
+                            System.out.println(res);
+                            JsonParser parser = new JsonParser();
+                            JsonElement jsonTree = parser.parse(res);
+                            if (jsonTree.isJsonObject()) {
                                 JsonObject jsonObject = jsonTree.getAsJsonObject();
-                        		JsonElement result = jsonObject.get("result");
-                        		JsonElement logs = result.getAsJsonObject().get("logs");
-                        		JsonElement executors = logs.getAsJsonArray().get(0).getAsJsonObject().get("executors");
+                                JsonElement elem = jsonObject.get("result");
+                                if (elem.isJsonObject()) {
+                                    JsonObject jo = elem.getAsJsonObject();
 
-                        		Container cont = new Container();                        		
-                        		int rows = executors.getAsJsonArray().size();
-                        		cont.setLayout(new GridLayout(1, rows, 0, 0));
-                        		for(int i = 0; i < rows; i++) {
-                        			JsonElement executor = executors.getAsJsonArray().get(i);
-                        			String isDriver = executor.getAsJsonObject().get("isDriver").toString();
-                        			String stdout = executor.getAsJsonObject().get("stdout").toString();
-                        			String stderr = executor.getAsJsonObject().get("stderr").toString();
-                        			Container innercont = new Container();
-                        			BoxLayout layout = new BoxLayout(innercont, BoxLayout.Y_AXIS); 
-                        			innercont.setLayout(layout);			
-                        			
-                        			JTextArea isDriverText = new JTextArea(2, 30);
-                        			isDriverText.setLineWrap(true);
-                        			isDriverText.setWrapStyleWord(true); 
-                        			isDriverText.setEditable(false);
-                        			isDriverText.setText(isDriver);
-                        			innercont.add(isDriverText);
-                        			
-                        			JTextArea stdoutText = new JTextArea(30, 30);
-                        			stdoutText.setLineWrap(true);
-                        			stdoutText.setWrapStyleWord(true); 
-                        			stdoutText.setEditable(false);
-                        			stdoutText.setText(stdout);
-                        			innercont.add(stdoutText);
-                        			
-                        			JTextArea stderrText = new JTextArea(30, 30);
-                        			stderrText.setLineWrap(true);
-                        			stderrText.setWrapStyleWord(true); 
-                        			stderrText.setEditable(false);
-                        			stderrText.setText(stderr);
-                        			innercont.add(stderrText);
-                        	
-                        			cont.add(innercont);
-                        		}
-                                
+                                    JsonArray jsonArr = jo.getAsJsonArray("jobs");
+                                    Gson googleJson = new Gson();
+                                    ArrayList jsonObjList = googleJson.fromJson(jsonArr, ArrayList.class);
+                                    scrollPane_1.remove(jobListTable);
+                                    jobListTable = new JTable();
+                                    final JPopupMenu popupMenu = new JPopupMenu();
+                                    JMenuItem getLogItem = new JMenuItem("Get log");
+                                    getLogItem.addActionListener(new ActionListener() {
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            int row = jobListTable.getSelectedRow();
+                                            String jobId = jobListTable.getModel().getValueAt(row, 1).toString();
+                                            Connect.HttpGetAndParam req =
+                                                    new Connect.HttpGetAndParam(Connect.master_base_url + "/services/job/get_log/");
+                                            req.addParameter("job_id", String.valueOf(Integer.parseInt(jobId)));
+                                            String res = "";
+                                            try {
+                                                res = req.execute();
+                                            } catch (IOException ex) {
+                                                ex.printStackTrace();
+                                            }
+                                            System.out.println(res);
+                                            // create a JTextArea
+                                            JTextArea textArea = new JTextArea(16, 30);
+                                            JsonParser parser = new JsonParser();
+                                            JsonElement jsonTree = parser.parse(res);
+                                            JsonObject jsonObject = jsonTree.getAsJsonObject();
+                                            JsonElement result = jsonObject.get("result");
+                                            JsonElement logs = result.getAsJsonObject().get("logs");
+                                            if (logs != null && logs.getAsJsonArray() != null) {
+                                                JsonElement executors = logs.getAsJsonArray().get(0).getAsJsonObject().get("executors");
+                                                Container cont = new Container();
+                                                int rows = executors.getAsJsonArray().size();
+                                                cont.setLayout(new GridLayout(1, rows, 0, 0));
+                                                for (int i = 0; i < rows; i++) {
+                                                    JsonElement executor = executors.getAsJsonArray().get(i);
+                                                    String isDriver = executor.getAsJsonObject().get("isDriver").toString();
+                                                    String stdout = executor.getAsJsonObject().get("stdout").toString();
+                                                    String stderr = executor.getAsJsonObject().get("stderr").toString();
+                                                    Container innercont = new Container();
+                                                    BoxLayout layout = new BoxLayout(innercont, BoxLayout.Y_AXIS);
+                                                    innercont.setLayout(layout);
 
-                                // wrap a scrollpane around it
-                                JScrollPane scrollPane = new JScrollPane(textArea);
-                        		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-                        		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                        		
-                        		scrollPane.getViewport().setView(cont);
+                                                    JTextArea isDriverText = new JTextArea(2, 30);
+                                                    isDriverText.setLineWrap(true);
+                                                    isDriverText.setWrapStyleWord(true);
+                                                    isDriverText.setEditable(false);
+                                                    isDriverText.setText(isDriver);
+                                                    innercont.add(isDriverText);
 
-                                // display them in a message dialog
-                                JOptionPane.showMessageDialog(null, scrollPane);
-                            }
-                        });
-                        popupMenu.addPopupMenuListener(new PopupMenuListener() {
+                                                    JTextArea stdoutText = new JTextArea(30, 30);
+                                                    stdoutText.setLineWrap(true);
+                                                    stdoutText.setWrapStyleWord(true);
+                                                    stdoutText.setEditable(false);
+                                                    stdoutText.setText(stdout);
+                                                    innercont.add(stdoutText);
 
-                            @Override
-                            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        int rowAtPoint = jobListTable.rowAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), jobListTable));
-                                        if (rowAtPoint > -1) {
-                                            jobListTable.setRowSelectionInterval(rowAtPoint, rowAtPoint);
+                                                    JTextArea stderrText = new JTextArea(30, 30);
+                                                    stderrText.setLineWrap(true);
+                                                    stderrText.setWrapStyleWord(true);
+                                                    stderrText.setEditable(false);
+                                                    stderrText.setText(stderr);
+                                                    innercont.add(stderrText);
+
+                                                    cont.add(innercont);
+                                                }
+
+
+                                                // wrap a scrollpane around it
+                                                JScrollPane scrollPane = new JScrollPane(textArea);
+                                                scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                                                scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+                                                scrollPane.getViewport().setView(cont);
+
+                                                // display them in a message dialog
+                                                JOptionPane.showMessageDialog(null, scrollPane);
+                                            }
                                         }
+                                    });
+                                    popupMenu.addPopupMenuListener(new PopupMenuListener() {
+
+                                        @Override
+                                        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                                            SwingUtilities.invokeLater(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    int rowAtPoint = jobListTable.rowAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), jobListTable));
+                                                    if (rowAtPoint > -1) {
+                                                        jobListTable.setRowSelectionInterval(rowAtPoint, rowAtPoint);
+                                                    }
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                                            // TODO Auto-generated method stub
+
+                                        }
+
+                                        @Override
+                                        public void popupMenuCanceled(PopupMenuEvent e) {
+                                            // TODO Auto-generated method stub
+
+                                        }
+                                    });
+                                    popupMenu.add(getLogItem);
+
+                                    jobListTable.setComponentPopupMenu(popupMenu);
+                                    scrollPane_1.setViewportView(jobListTable);
+
+                                    boolean addCol = false;
+                                    DefaultTableModel model_1 = (DefaultTableModel) jobListTable.getModel();
+                                    jobListTable.setDefaultEditor(Object.class, null);
+                                    for (Object obj : jsonObjList) {
+                                        List<Object> list = new ArrayList<>();
+                                        LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) obj;
+                                        for (Map.Entry<String, Object> entry : map.entrySet()) {
+                                            String k = entry.getKey();
+                                            String v = "";
+                                            if (entry.getValue() instanceof Integer || k.equals("job_id")) {
+                                                double d_v = (Double) entry.getValue();
+                                                int i_v = (int) d_v;
+                                                v = "" + i_v;
+
+                                            } else if (entry.getValue() instanceof Double) {
+                                                double d_v = (Double) entry.getValue();
+                                                v = "" + d_v;
+                                            } else {
+                                                v = (String) entry.getValue();
+                                            }
+                                            if (!addCol) {
+                                                model_1.addColumn(k);
+                                            }
+                                            list.add(v);
+                                        }
+                                        model_1.addRow(list.toArray());
+                                        list.clear();
+                                        addCol = true;
                                     }
-                                });
-                            }
-
-                            @Override
-                            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                                // TODO Auto-generated method stub
-
-                            }
-
-                            @Override
-                            public void popupMenuCanceled(PopupMenuEvent e) {
-                                // TODO Auto-generated method stub
-
-                            }
-                        });
-                        popupMenu.add(getLogItem);
-                        jobListTable.setComponentPopupMenu(popupMenu);
-
-                        scrollPane_1.setViewportView(jobListTable);
-
-                        boolean addCol = false;
-                        DefaultTableModel model_1 = (DefaultTableModel) jobListTable.getModel();
-                        jobListTable.setDefaultEditor(Object.class, null);
-                        for(Object obj:jsonObjList) {
-                            List<Object> list  = new ArrayList<>();
-                            LinkedTreeMap<String, Object> map = (LinkedTreeMap<String, Object>) obj;
-                            for (Map.Entry<String, Object> entry: map.entrySet()) {
-                                String k = entry.getKey();
-                                String v = "";
-                                if(entry.getValue() instanceof Integer || k.equals("job_id")){
-                                    double d_v = (Double) entry.getValue();
-                                    int i_v = (int) d_v;
-                                    v = ""+i_v;
-
-                                }else if (entry.getValue() instanceof Double){
-                                    double d_v = (Double) entry.getValue();
-                                    v = ""+d_v;
-                                }else{
-                                    v = (String) entry.getValue();
+                                    jobListTable.setModel(model_1);
                                 }
-                                if(!addCol){
-                                    model_1.addColumn(k);
-                                }
-                                list.add(v);
                             }
-                            model_1.addRow(list.toArray());
-                            list.clear();
-                            addCol = true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        jobListTable.setModel(model_1);
                     }
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                });
             }
         }
-    }
+
     public JobPage() {
         jobPanel = new JPanel();
         jobPanel.setLayout(null);
